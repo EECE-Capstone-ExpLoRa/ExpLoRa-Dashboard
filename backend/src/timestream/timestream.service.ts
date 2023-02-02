@@ -16,7 +16,9 @@ export class TimestreamService {
         
         try {
             const data = await this.writeClient.send(createDbCommand);
-            console.log(`Database: ${dbName} has been created successfully.`);
+            const message: string = `Database: ${dbName} has been created successfully.`
+            console.log(message);
+            return message;
         }
         catch(error) {
             if (error['$metadata']['httpStatusCode'] === 409) {
@@ -36,16 +38,22 @@ export class TimestreamService {
         
         try {
             const data = await this.writeClient.send(deleteDbCommand);
-            console.log(`Database: ${dbName} has been deleted successfully.`);
+            const message: string = `Database: ${dbName} has been deleted successfully.`;
+            console.log(message);
+            return message;
         }
         catch(error) {
+            let message = "";
             if (error['$metadata']['httpStatusCode'] === 404) {
-                console.log(`Database: ${dbName} does not exist; cannot delete`);
+                message = `Database: ${dbName} does not exist; cannot delete`;
+                console.log(message);
             }
             else {
-                console.log(`An error occurred when trying to delete database: ${dbName}`);
+                message = `An error occurred when trying to delete database: ${dbName}`;
+                console.log(message);
                 throw error;
             }
+            return message;
         }
     };
 
