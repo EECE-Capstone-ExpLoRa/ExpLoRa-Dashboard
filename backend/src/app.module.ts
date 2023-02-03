@@ -5,7 +5,12 @@ import { AppService } from './app.service';
 import { TimestreamModule } from './timestream/timestream.module';
 
 @Module({
-  imports: [TimestreamModule, ConfigModule.forRoot({isGlobal: true})],
+  imports: [
+    TimestreamModule, 
+    ConfigModule.forRoot({
+      isGlobal: true
+    })
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
