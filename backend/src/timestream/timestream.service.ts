@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { TimestreamQueryClient, QueryCommand, QueryCommandOutput, QueryCommandInput } from "@aws-sdk/client-timestream-query";
 import { TimestreamWriteClient, CreateDatabaseCommand, DeleteDatabaseCommand, ListDatabasesCommand, DescribeTableCommand, ListTablesCommand } from "@aws-sdk/client-timestream-write";
 
