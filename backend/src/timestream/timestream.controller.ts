@@ -6,32 +6,39 @@ export class TimestreamController {
     constructor(private readonly timestreamService: TimestreamService) {}
     
     @Get('db/list')
-    listAllDatabases() {
-        return this.timestreamService.listDatabases();
+    async listAllDatabases() {
+        const databases: string[] = await this.timestreamService.listDatabases();
+        return {
+            Databases: databases
+        };
     }
 
     @Post('db/:dbName')
-    createDb(@Param('dbName') dbName: string) {
-        return this.timestreamService.createDatabase(dbName);
+    async createDb(@Param('dbName') dbName: string) {
+        return await this.timestreamService.createDatabase(dbName);
     }
 
     @Delete('db/:dbName')
-    deleteDb(@Param('dbName') dbName: string) {
-        return this.timestreamService.deleteDatabase(dbName);
+    async deleteDb(@Param('dbName') dbName: string) {
+        return await this.timestreamService.deleteDatabase(dbName);
     }
 
     @Get('db/:dbName')
-    getTableDescription(@Param('dbName') dbName: string, @Body('tableName') tableName: string) {
-        return this.timestreamService.getTableDescription(dbName, tableName);
+    async getTableDescription(@Param('dbName') dbName: string, @Body('tableName') tableName: string) {
+        return await this.timestreamService.getTableDescription(dbName, tableName);
     }
 
     @Get('db/:dbName/list')
-    listAllTables(@Param('dbName') dbName: string) {
-        return this.timestreamService.getTablesList(dbName);
+    async listAllTables(@Param('dbName') dbName: string) {
+        const tables: string[] = await this.timestreamService.getTablesList(dbName);
+        return {
+            Database: dbName,
+            Tables: tables
+        };
     }
 
     @Get(':db/:tableName')
-    getTableData(@Param('db') db: string, @Param('tableName') tableName: string) {
-        return this.timestreamService.getTableData(db, tableName);
+    async getTableData(@Param('db') db: string, @Param('tableName') tableName: string) {
+        return await this.timestreamService.getTableData(db, tableName);
     }
 }
