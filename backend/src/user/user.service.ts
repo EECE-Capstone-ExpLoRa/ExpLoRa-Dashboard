@@ -9,11 +9,23 @@ import { DeviceDto } from 'src/devices/device.dto';
 export class UserService {
   constructor(@InjectKnex() private readonly knex: Knex) {}
 
-  public async findOne(userId: number): Promise<UserDto> {
+  public async findUserById(userId: number): Promise<UserDto> {
     const user = await this.knex<UserDto>('user')
       .where('user_id', userId)
       .first();
     return user;
+  }
+
+  public async findUserByUsername(username: string) {
+    const user = await this.knex<UserDto>('user')
+    .where('username', username)
+    .first();
+    return user;
+  }
+
+  public async findAllUsers() {
+    const users = await this.knex<UserDto>('user');
+    return users;
   }
 
   public async create(user: UserDto): Promise<number> {

@@ -15,12 +15,24 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
   
   @Get(':id')
-  public async findOne(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
-    const user = await this.userService.findOne(id);
+  public async findUserById(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
+    const user = await this.userService.findUserById(id);
     if (!user) {
       throw new NotFoundException(`The user with the id: ${id} does not exist`);
     }
     return user;
+  }
+
+  @Get('username/:username')
+  public async findUserByUsername(@Param('username') username: string) {
+    const user = await this.userService.findUserByUsername(username);
+    if (!user) throw new NotFoundException(`User with the username: ${username} not found`);
+    return user;
+  }
+
+  @Get()
+  public async findAllUsers() {
+    return this.userService.findAllUsers();
   }
 
   @Post()
