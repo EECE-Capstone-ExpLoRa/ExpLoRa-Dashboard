@@ -4,6 +4,7 @@ import { Knex } from 'nestjs-knex/dist/knex.interfaces';
 
 import { UserDto, UserDeviceDto } from './user.dto';
 import { DeviceDto } from 'src/devices/device.dto';
+import { hashPassword, isMatch } from 'src/utils/bcrypt';
 
 @Injectable()
 export class UserService {
@@ -29,8 +30,12 @@ export class UserService {
   }
 
   public async create(user: UserDto): Promise<number> {
+    console.log(`Raw password: ${user.password}`);
+    const password = await hashPassword(user.password);
+    console.log(`Stored password: ${password}`);
+    const hashedUser = { ...user, password};
     const userId = await this.knex<UserDto>('user')
-      .insert(user);
+      .insert(hashedUser);
     console.log(userId);
     return userId[0];
   }
