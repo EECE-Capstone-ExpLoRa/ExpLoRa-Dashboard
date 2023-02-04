@@ -1,6 +1,8 @@
 import { 
+  BadRequestException,
   Body, Controller, Delete, 
-  Get, HttpException, HttpStatus, 
+  Get,
+  NotFoundException, 
   Param, ParseIntPipe, Post, Put, 
   ValidationPipe 
 } from '@nestjs/common';
@@ -13,23 +15,22 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
   
   @Get(':id')
-  public async findOne(
-    @Param('id', ParseIntPipe) id: number
-  ): Promise<UserDto> {
+  public async findOne(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
     const user = await this.userService.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`The user with the id: ${id} does not exist`);
+    }
     return user;
   }
 
   @Post()
-  public async create(
-    @Body(new ValidationPipe({ whitelist: true })) user: UserDto
-  ): Promise<number> {
+  public async create(@Body(new ValidationPipe({ whitelist: true })) user: UserDto): Promise<number> {
     try {
       const userId = await this.userService.create(user);
       return userId;
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
-        throw new HttpException('Invalid username (already exists)', HttpStatus.BAD_REQUEST);
+        throw new BadRequestException('Invalid username (already exists)');
       } else {
         throw error;
       }
@@ -41,6 +42,9 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number
   ): Promise<number> {  
     const deleteCount = await this.userService.delete(id);
+    if (deleteCount === 0) {
+      throw new NotFoundException(`The user with the id: ${id} does not exist`);
+    }
     return deleteCount;
   }
 
@@ -49,12 +53,15 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number, 
     @Body(new ValidationPipe({ whitelist: true, skipMissingProperties: true })) user: UserDto
   ): Promise<number> {
+    if (Object.keys(user).length === 0) {
+      throw new BadRequestException("Object must contain either username or password");
+    }
     try {
       const updatedUser = await this.userService.update(id, user);
       return updatedUser;
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
-        throw new HttpException('Invalid username (already exists)', HttpStatus.BAD_REQUEST);
+        throw new BadRequestException('Invalid username (already exists)')
       } else {
         throw error;
       }

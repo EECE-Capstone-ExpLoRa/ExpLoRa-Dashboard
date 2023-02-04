@@ -7,9 +7,7 @@ import { DeviceDto } from 'src/devices/device.dto';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectKnex() private readonly knex: Knex,
-  ) {}
+  constructor(@InjectKnex() private readonly knex: Knex) {}
 
   public async findOne(userId: number): Promise<UserDto> {
     const user = await this.knex<UserDto>('user')
@@ -21,6 +19,7 @@ export class UserService {
   public async create(user: UserDto): Promise<number> {
     const userId = await this.knex<UserDto>('user')
       .insert(user);
+    console.log(userId);
     return userId[0];
   }
 
@@ -28,6 +27,7 @@ export class UserService {
     const updateCount = await this.knex<UserDto>('user')
       .where('user_id', userId)
       .update(user);
+    console.log(updateCount);
     return updateCount;
   }
 
@@ -35,6 +35,7 @@ export class UserService {
     const deleteCount = await this.knex<UserDto>('user')
       .where('user_id', userId)
       .del();
+    console.log(deleteCount);
     return deleteCount;
   }
 
