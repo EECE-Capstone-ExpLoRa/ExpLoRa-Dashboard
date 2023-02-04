@@ -1,15 +1,31 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { KnexModule } from 'nestjs-knex';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TimestreamModule } from './timestream/timestream.module';
+import { UserModule } from './user/user.module';
+import { DeviceModule } from './devices/device.module';
+import { config } from './config/config';
 
 @Module({
   imports: [
-    TimestreamModule, 
     ConfigModule.forRoot({
-      isGlobal: true
-    })
+      isGlobal: true,
+      load: [config]
+    }),
+    KnexModule.forRootAsync({
+      useFactory: 
+      async (configService: ConfigService) => ({
+        config: configService.get('database'),
+        pool: { min: 0, max: 7 }
+      }),
+      inject: [ConfigService]
+    }),
+    UserModule,
+    DeviceModule,
+    TimestreamModule,
   ],
   controllers: [AppController],
   providers: [AppService],
