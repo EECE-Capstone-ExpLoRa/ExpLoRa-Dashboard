@@ -1,13 +1,30 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsEmail, Allow } from "class-validator";
 
 export class UserDto {
   user_id: number;
 
+  username: string;
+
+  email: string;
+}
+
+export class CreateUserDto {
   @IsNotEmpty()
   username: string;
 
   @IsNotEmpty()
   password: string;
+
+  @IsEmail()
+  email: string;
+}
+
+export class UpdateUserDto {
+  @Allow()
+  username: string;
+
+  @Allow()
+  email: string;
 }
 
 export class RegisterDeviceDto {

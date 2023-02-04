@@ -16,7 +16,7 @@ export class DeviceController {
   ): Promise<DeviceDto> {
     const device = await this.deviceService.findOne(deviceEui);
     if (!device) {
-      throw new NotFoundException('Device with the given ID not found');
+      throw new NotFoundException(`No device exists with EUI: ${deviceEui}`);
     }
     return device;
   }
@@ -24,9 +24,12 @@ export class DeviceController {
   @Put(':eui')
   public async update(
     @Param('eui') deviceEui: string,
-    @Body(new ValidationPipe()) deviceDto: DeviceDto
+    @Body(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true})) deviceDto: DeviceDto
   ): Promise<number> {
     const updateCount = await this.deviceService.update(deviceEui, deviceDto);
+    if (updateCount === 0) {
+      throw new NotFoundException(`No device exists with EUI: ${deviceEui}`);
+    }
     return updateCount;
   }
 }

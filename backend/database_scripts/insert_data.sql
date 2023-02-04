@@ -4,12 +4,12 @@ USE explora;
 # that assume this is the first insert on the database
 
 -- INSERT SCRIPTS --
-INSERT INTO explora.user(username, password)
-	VALUES ("admin1", "password"),
-		   ("admin2", "password"),
-		   ("admin3", "password"),
-           ("admin4", "password"),
-           ("admin5", "password");
+INSERT INTO explora.user(username, password, email)
+	VALUES ("admin1", "password", "admin1@gmail.com"),
+		   ("admin2", "password", "admin2@gmail.com"),
+		   ("admin3", "password", "admin3@gmail.com"),
+           ("admin4", "password", "admin4@gmail.com"),
+           ("admin5", "password", "admin5@gmail.com");
 
 INSERT INTO explora.device
 	VALUES ("2390474187332", "rocket", "main rocket"),

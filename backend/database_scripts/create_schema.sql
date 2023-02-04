@@ -5,6 +5,7 @@ USE explora;
 CREATE TABLE explora.user (
 	user_id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(64) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL,
     password VARCHAR(64) NOT NULL
 );
 
