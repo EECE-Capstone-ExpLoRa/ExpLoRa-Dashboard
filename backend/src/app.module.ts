@@ -4,6 +4,7 @@ import { KnexModule } from 'nestjs-knex';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TimestreamModule } from './timestream/timestream.module';
 import { UserModule } from './user/user.module';
 import { DeviceModule } from './devices/device.module';
 import { config } from './config/config';
@@ -23,7 +24,8 @@ import { config } from './config/config';
       inject: [ConfigService]
     }),
     UserModule,
-    DeviceModule
+    DeviceModule,
+    TimestreamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,6 @@
 import { 
   Body, Controller, Get,
+  NotFoundException,
   Param, Put, ValidationPipe 
 } from '@nestjs/common';
 import { DeviceDto } from './device.dto';
@@ -14,6 +15,9 @@ export class DeviceController {
     @Param('eui') deviceEui: string
   ): Promise<DeviceDto> {
     const device = await this.deviceService.findOne(deviceEui);
+    if (!device) {
+      throw new NotFoundException('Device with the given ID not found');
+    }
     return device;
   }
 
