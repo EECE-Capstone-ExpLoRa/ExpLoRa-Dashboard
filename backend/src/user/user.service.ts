@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectKnex } from 'nestjs-knex/dist/knex.decorators';
 import { Knex } from 'nestjs-knex/dist/knex.interfaces';
-
-import { UserDto, UserDeviceDto, UpdateUserDto, CreateUserDto } from './user.dto';
+import { UserDto, UserDeviceDto, UpdateUserDto, CreateUserDto, DeletedUser } from './user.dto';
 import { DeviceDto } from 'src/devices/device.dto';
 import { hashPassword, isMatch } from 'src/utils/bcrypt';
 
@@ -32,14 +31,11 @@ export class UserService {
     return users;
   }
 
-  public async create(createUserDto: CreateUserDto): Promise<number> {
-    console.log(`Raw password: ${createUserDto.password}`);
+  public async createUser(createUserDto: CreateUserDto): Promise<number> {
     const password = await hashPassword(createUserDto.password);
-    console.log(`Stored password: ${password}`);
     const hashedUser = { ...createUserDto, password};
     const userId = await this.knex<UserDto>('user')
       .insert(hashedUser);
-    console.log(userId);
     return userId[0];
   }
 
@@ -51,12 +47,12 @@ export class UserService {
     return updateCount;
   }
 
-  public async delete(userId: number): Promise<number> {
+  public async deleteUser(userId: number): Promise<DeletedUser> {
+    const user = await this.findUserById(userId);
     const deleteCount = await this.knex<UserDto>('user')
       .where('user_id', userId)
       .del();
-    console.log(deleteCount);
-    return deleteCount;
+    return {user, deleteCount};
   }
 
   public async findAllDevices(userId: number): Promise<DeviceDto[]> {

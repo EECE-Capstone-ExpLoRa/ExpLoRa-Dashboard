@@ -3,10 +3,12 @@ import {
   NotFoundException,
   Param, Put, ValidationPipe 
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { DeviceDto } from './device.dto';
 import { DeviceService } from './device.service';
 
 @Controller('devices')
+@ApiTags('Device')
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
   
