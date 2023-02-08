@@ -3,7 +3,7 @@ import { InjectKnex } from 'nestjs-knex/dist/knex.decorators';
 import { Knex } from 'nestjs-knex/dist/knex.interfaces';
 import { UserDto, UserDeviceDto, UpdateUserDto, CreateUserDto, DeletedUser } from './user.dto';
 import { DeviceDto } from 'src/devices/device.dto';
-import { hashPassword, isMatch } from 'src/utils/bcrypt';
+import { hashPassword } from 'src/utils/bcrypt';
 
 @Injectable()
 export class UserService {
@@ -84,5 +84,12 @@ export class UserService {
       .andWhere('device_eui', deviceEui)
       .del();
     return deleteCount;
+  }
+
+  public async findFullUser(username: string) {
+    const user = await this.knex<CreateUserDto>('user')
+    .where('username', username)
+    .first();
+    return user;
   }
 }

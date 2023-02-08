@@ -1,5 +1,6 @@
 export const config = () => ({
     port: Number(process.env.PORT) || 3000,
+    jwt_secret: process.env.JWT_SECRET || 'get goodd nerd',
     database: {
         client: 'mysql2',
         version: '5.7',
