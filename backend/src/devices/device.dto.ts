@@ -20,7 +20,7 @@ export class DeviceDto {
   
   @Allow()
   @ApiProperty({
-    enum: ["rocket", "drone", "car", "other"], // I think we should change this to device type instead
+    enum: ["rocket", "drone", "car", "other"],
     enumName: "DeviceType"
   })
   type: DeviceType;
@@ -28,4 +28,9 @@ export class DeviceDto {
   constructor(device_eui: string) {
     this.device_eui = device_eui;
   }
+}
+
+export type DeviceAndCount = {
+  device: DeviceDto,
+  count: number
 }

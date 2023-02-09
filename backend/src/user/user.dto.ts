@@ -1,12 +1,29 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsNotEmpty, IsEmail, Allow } from "class-validator";
+
+export class LoginDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  username: string
+
+  @ApiProperty()
+  @IsNotEmpty()
+  password: string
+}
+
+export class FullUser {
+  userId: number;
+  email: string;
+  username: string;
+  password: string;
+}
 
 export class UserDto {
   @ApiProperty({
     type: Number,
     description: "The user's Id"
   })
-  user_id: number;
+  userId: number;
 
   @ApiProperty({
     type: String,
@@ -46,12 +63,17 @@ export class CreateUserDto {
 
 export class UpdateUserDto {
   @Allow()
-  @ApiProperty()
-  username: string;
+  @ApiPropertyOptional()
+  newUsername: string;
 
   @Allow()
-  @ApiProperty()
-  email: string;
+  @ApiPropertyOptional()
+  newPassword: string;
+
+  @Allow()
+  @IsEmail()
+  @ApiPropertyOptional()
+  newEmail: string
 }
 
 export class RegisterDeviceDto {
@@ -61,6 +83,7 @@ export class RegisterDeviceDto {
     description: "The device registration code"
   })
   device_eui: string; // TODO: enforce more constraints for what how device EUI is formatted
+  // so currently it only takes in a device id, should we want to add optional nicknames and the type? or where is that determined?
 }
 
 export class UserDeviceDto {
@@ -74,7 +97,7 @@ export class UserDeviceDto {
   }
 }
 
-export type DeletedUser = {
+export type CountAndUser = {
   user: UserDto,
-  deleteCount: number
+  count: number
 }

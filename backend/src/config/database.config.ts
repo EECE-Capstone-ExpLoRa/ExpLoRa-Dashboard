@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { Knex } from "knex";
 import { KnexModuleOptions, KnexModuleOptionsFactory } from "nestjs-knex";
 
 @Injectable()

@@ -1,10 +1,13 @@
-import { Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Get, Post, UseGuards, Request, ValidationPipe, UsePipes } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
+import { LoginDto, UserDto } from './user/user.dto';
 
 @Controller()
+@ApiTags('Home')
 export class AppController {
   constructor(
     private readonly appService: AppService,
@@ -15,11 +18,25 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('auth/login')
-  async login(@Request() req) {
+  @UseGuards(LocalAuthGuard)
+  @ApiOperation({summary: "Allows users to login"})
+  @ApiBody({type: LoginDto})
+  @ApiCreatedResponse({description: "A JWT for authorized users", type: String})
+  @ApiUnauthorizedResponse({description: "Unauthorized"})
+  async login(@Request() req) { //Do we want to add a reroute here if it fails?
     const token = await this.authService.login(req.user);
-    console.log(token);
     return token;
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({summary: "Allows authorized users to view their user details"})
+  @ApiCreatedResponse({description: "Current user's user information", type: UserDto})
+  @ApiUnauthorizedResponse({description: "Unauthorized"})
+  getProfile(@Request() req) {
+    const user: UserDto = req.user;
+    return user;
   }
 }

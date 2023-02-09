@@ -12,6 +12,14 @@ async function bootstrap() {
     .setTitle('ExpLorRa Documentation')
     .setDescription('Api Documentation for the ExpLoRa group for CapStone')
     .setVersion('1.0')
+    .addBearerAuth({ 
+      type: 'http', 
+      scheme: 'bearer', 
+      bearerFormat: 'JWT',
+      name: 'JWT',
+      description: 'Enter JWT token',
+      in: 'header'
+    }, 'JWT-auth',)
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

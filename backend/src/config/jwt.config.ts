@@ -7,9 +7,11 @@ export class JwtConfigService implements JwtOptionsFactory {
     constructor(private readonly configService: ConfigService) {}
     createJwtOptions(): JwtModuleOptions | Promise<JwtModuleOptions> {
         const jwtSecret = this.configService.get<string>('jwt_secret');
+        const jwtExpiration = this.configService.get<string>('expires_in');
+
         return {
             secret: jwtSecret,
-            signOptions: {expiresIn: '5h'} // was 60s before
+            signOptions: {expiresIn: jwtExpiration}
         }
     }
 

@@ -4,10 +4,19 @@ import {
   Get,
   NotFoundException, 
   Param, ParseIntPipe, Post, Put, 
+  Req, 
+  UseGuards, 
   UsePipes, 
   ValidationPipe 
 } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiNotFoundResponse, ApiParam, ApiTags } from '@nestjs/swagger';
+import { 
+  ApiBadRequestResponse, 
+  ApiBearerAuth, ApiBody, 
+  ApiCreatedResponse, ApiNotFoundResponse, 
+  ApiOperation, ApiParam, ApiTags, 
+  ApiUnauthorizedResponse 
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { DeviceDto } from 'src/devices/device.dto';
 import { UserDto, RegisterDeviceDto, UpdateUserDto, CreateUserDto } from './user.dto';
 import { UserService } from './user.service';
@@ -17,34 +26,11 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
   
-  @Get(':id')
-  @ApiNotFoundResponse({description: "User with the given Id not found"})
-  @ApiParam({
-    name: "id",
-    description: "The user's Id"
-  })
-  @ApiCreatedResponse({
-    description: "The Queried user",
-    type: UserDto
-  })
-  public async findUserById(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
-    const user = await this.userService.findUserById(id);
-    if (!user) {
-      throw new NotFoundException(`The user with the id: ${id} does not exist`);
-    }
-    return user;
-  }
-
   @Get('username/:username')
+  @ApiOperation({summary: "Test endpoint for getting users by username"})
+  @ApiParam({name: "username", description: "The user's username"})
+  @ApiCreatedResponse({description: "The Queried user", type: UserDto})
   @ApiNotFoundResponse({description: "User with the given username not found"})
-  @ApiParam({
-    name: "username",
-    description: "The user's username"
-  })
-  @ApiCreatedResponse({
-    description: "The Queried user",
-    type: UserDto
-  })
   public async findUserByUsername(@Param('username') username: string): Promise<UserDto> {
     const user = await this.userService.findUserByUsername(username);
     if (!user) {
@@ -53,23 +39,69 @@ export class UserController {
     return user;
   }
 
-  @Get()
-  @ApiCreatedResponse({
-    description: "List of Users",
-    type: UserDto,
-    isArray: true
-  })
-  public async findAllUsers(): Promise<UserDto[]> {
-    return this.userService.findAllUsers();
+
+  @Delete('devices/:eui')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({summary: "Allows authorized users to delete a device they registered"})
+  @ApiParam({name: "EUI", description: "The device's unique identifier"})
+  @ApiCreatedResponse({description: "The device details", type: DeviceDto})
+  @ApiNotFoundResponse({description: "Device not registered with current user"})
+  @ApiUnauthorizedResponse({description: "You aren't logged into your account"})
+  public async unregisterDevice(@Req() req, @Param('eui') deviceEui: string) {
+    const user: UserDto = req.user;
+    const deletedObj = await this.userService.unregisterDevice(user.userId, deviceEui);
+    if (deletedObj.count === 0) {
+      throw new NotFoundException(`The user with the id: ${user.userId} is not registered to device: ${deviceEui}`);
+    }
+    return deletedObj.device;
   }
 
-  @Post()
+  @Get('devices')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({summary: "Allows authorized users to view their registered devices"})
+  @ApiCreatedResponse({description: "The user's devices", type: DeviceDto, isArray: true})
+  @ApiUnauthorizedResponse({description: "You aren't logged into your account"})
+  public async findAllDevices(@Req() req): Promise<DeviceDto[]> {
+    const user: UserDto = req.user;
+    const devices = await this.userService.findAllDevices(user.userId);
+    return devices;
+  }
+
+  @Post('devices') //Do we want to add optional arugments (nickname and type) I think type at least should be required
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({summary: "Allows authorized users to register a new device"})
+  @ApiBody({type: RegisterDeviceDto})
+  @ApiCreatedResponse({description: "The device eui", type: RegisterDeviceDto})
+  @ApiUnauthorizedResponse({description: "You aren't logged into your account"})
   @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
-  @ApiBody({
-    type: CreateUserDto
-  })
-  @ApiBadRequestResponse({description: "A user with the provided username already exists"})
+  public async registerDevice(@Req() req, @Body() registerDeviceDto: RegisterDeviceDto) {
+    const user: UserDto = req.user;
+    await this.userService.registerDevice(user.userId, registerDeviceDto.device_eui);
+    return registerDeviceDto;
+  }
+
+  @Get(':id')
+  @ApiOperation({summary: "Test enpoint for getting users by id"})
+  @ApiNotFoundResponse({description: "User with the given Id not found"})
+  @ApiParam({name: "id", description: "The user's Id"})
+  @ApiCreatedResponse({description: "The Queried user", type: UserDto})
+  public async findUserById(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
+    const user = await this.userService.findUserById(id);
+    if (!user) {
+      throw new NotFoundException(`The user with the id: ${id} does not exist`);
+    }
+    return user;
+  }
+
+  @Post() // should this also include an optional eui number?
+  @ApiOperation({summary: "Allows users to create an account"})
+  @ApiBody({type: CreateUserDto})
   @ApiCreatedResponse({description: "The new user's Id", type: Number})
+  @ApiBadRequestResponse({description: "A user with the provided username already exists"})
+  @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
   public async createUser(@Body() createUserDto: CreateUserDto) {
     try {
       const userId = await this.userService.createUser(createUserDto);
@@ -83,82 +115,50 @@ export class UserController {
     }
   }
 
-  @Delete(':id')
-  @ApiNotFoundResponse({description: "User with the given id not found"})
-  @ApiParam({
-    name: "id",
-    description: "The user's id"
-  })
-  @ApiCreatedResponse({
-    description: "The deleted user",
-    type: UserDto
-  })
-  public async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<UserDto> { // I'm assuming this would have to be within a validate path?
-    const deletedUser = await this.userService.deleteUser(id);
-    if (deletedUser.deleteCount === 0) {
-      throw new NotFoundException(`The user with the id: ${id} does not exist`);
-    }
-    return deletedUser.user;
+  @Get()
+  @ApiOperation({summary: "Test endpoint for getting all users"})
+  @ApiCreatedResponse({description: "List of Users", type: UserDto, isArray: true})
+  public async findAllUsers(): Promise<UserDto[]> {
+    return this.userService.findAllUsers();
   }
 
-  @Put(':id')
-  @ApiParam({
-    name: "id",
-    description: "The user's id"
-  })
-  @ApiBody({
-    type: UpdateUserDto
-  })
-  @ApiCreatedResponse({
-    description: "The updated user object",
-    type: UserDto
-  })
-  @ApiNotFoundResponse({description: "User with the given id not found"})
-  @ApiBadRequestResponse({description: "A user with the provided username already exists"})
-  public async update(
-    @Param('id', ParseIntPipe) id: number, 
-    @Body(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true})) updateUserDto: UpdateUserDto
-  ): Promise<number> { // A user should be able to change their password right? on top of that should we check the password to update user?
+  @Put()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({summary: "Allows authorized users to update their account"})
+  @ApiCreatedResponse({description: "The updated user", type: UserDto})
+  @ApiBadRequestResponse({description: "Body contains values besides the new username/password or username already exists"})
+  @ApiUnauthorizedResponse({description: "You aren't logged into your account"})
+  @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
+  public async updateUser(@Req() req, @Body() updateInfo: UpdateUserDto) {
+    const user: UserDto = req.user;
     try {
-      const updateCount = await this.userService.update(id, updateUserDto);
-      if (updateCount === 0) {
-        throw new NotFoundException(`The user with the id: ${id} does not exist`);
-      }
-      return updateCount;
-    } catch (error) {
+      const updateAndCount = await this.userService.updateUser(user, updateInfo);
+      return updateAndCount.user;
+    }
+    catch (error) {
       if (error.code === 'ER_DUP_ENTRY') {
-        throw new BadRequestException('Invalid username (already exists)')
-      } else {
+        throw new BadRequestException('Invalid username (already exists)');
+      }
+      else {
         throw error;
       }
     }
   }
 
-  @Get(':id/devices') // Should fail if the id doesn't exist
-  public async findAllDevices(
-    @Param('id', ParseIntPipe) userId: number
-  ): Promise<DeviceDto[]> {
-    const devices = await this.userService.findAllDevices(userId);
-    return devices;
-  }
-
-  @Post(':id/devices') //should fail if the id doesn't exist or that id has been registerd with that user before (can a device be registered with multiple users?)
-  public async registerDevice(
-    @Param('id', ParseIntPipe) userId: number,
-    @Body(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true})) registerDeviceDto: RegisterDeviceDto
-  ): Promise<void> {
-    await this.userService.registerDevice(userId, registerDeviceDto.device_eui);
-  }
-
-  @Delete(':id/devices/:eui') //should fail if the user or id doesn't exist
-  public async unregisterDevice(
-    @Param('id', ParseIntPipe) userId: number,
-    @Param('eui') deviceEui: string,
-  ): Promise<number> {
-    const deleteCount = await this.userService.unregisterDevice(userId, deviceEui);
-    if (deleteCount === 0) {
-      throw new NotFoundException(`The user with the id: ${userId} is not registered to device: ${deviceEui}`);
+  @Delete()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({summary: "Allows authorized users to delete their account"})
+  @ApiCreatedResponse({description: "The deleted user", type: UserDto})
+  @ApiNotFoundResponse({description: "User with the given id not found"})
+  @ApiUnauthorizedResponse({description: "You aren't logged into your account"})
+  public async deleteUser(@Req() req: any): Promise<UserDto> {
+    const userId = req.user.userId;
+    const deletedUser = await this.userService.deleteUser(userId);
+    if (deletedUser.count === 0) {
+      throw new NotFoundException(`The user with the id: ${userId} does not exist`);
     }
-    return deleteCount;
+    return deletedUser.user;
   }
 }
