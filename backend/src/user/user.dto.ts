@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNotEmpty, IsEmail, Allow } from "class-validator";
+import { IsNotEmpty, IsEmail, Allow, IsOptional, ValidateIf, IsEnum, IsAlphanumeric } from "class-validator";
+import { DeviceType } from "src/devices/device.dto";
 
 export class LoginDto {
   @ApiProperty()
@@ -58,20 +59,30 @@ export class CreateUserDto {
     description: "The email the user would like to register with"
   })
   @IsEmail()
+  @IsNotEmpty()
   email: string;
+
+  @IsAlphanumeric()
+  @IsNotEmpty()
+  @IsOptional()
+  @ApiPropertyOptional()
+  deviceEui?: string;
 }
 
 export class UpdateUserDto {
   @Allow()
+  @IsOptional()
   @ApiPropertyOptional()
   newUsername: string;
 
   @Allow()
+  @IsOptional()
   @ApiPropertyOptional()
   newPassword: string;
 
   @Allow()
   @IsEmail()
+  @IsOptional()
   @ApiPropertyOptional()
   newEmail: string
 }
@@ -83,7 +94,6 @@ export class RegisterDeviceDto {
     description: "The device registration code"
   })
   device_eui: string; // TODO: enforce more constraints for what how device EUI is formatted
-  // so currently it only takes in a device id, should we want to add optional nicknames and the type? or where is that determined?
 }
 
 export class UserDeviceDto {

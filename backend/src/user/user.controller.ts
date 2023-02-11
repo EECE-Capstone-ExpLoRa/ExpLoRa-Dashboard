@@ -69,7 +69,7 @@ export class UserController {
     return devices;
   }
 
-  @Post('devices') //Do we want to add optional arugments (nickname and type) I think type at least should be required
+  @Post('devices')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({summary: "Allows authorized users to register a new device"})
@@ -96,13 +96,14 @@ export class UserController {
     return user;
   }
 
-  @Post() // should this also include an optional eui number?
+  @Post()
   @ApiOperation({summary: "Allows users to create an account"})
   @ApiBody({type: CreateUserDto})
   @ApiCreatedResponse({description: "The new user's Id", type: Number})
   @ApiBadRequestResponse({description: "A user with the provided username already exists"})
   @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
   public async createUser(@Body() createUserDto: CreateUserDto) {
+    console.log(createUserDto);
     try {
       const userId = await this.userService.createUser(createUserDto);
       return userId;
@@ -127,7 +128,7 @@ export class UserController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({summary: "Allows authorized users to update their account"})
   @ApiCreatedResponse({description: "The updated user", type: UserDto})
-  @ApiBadRequestResponse({description: "Body contains values besides the new username/password or username already exists"})
+  @ApiBadRequestResponse({description: "Body contains values besides the new username/password/email or username already exists"})
   @ApiUnauthorizedResponse({description: "You aren't logged into your account"})
   @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
   public async updateUser(@Req() req, @Body() updateInfo: UpdateUserDto) {
@@ -160,5 +161,5 @@ export class UserController {
       throw new NotFoundException(`The user with the id: ${userId} does not exist`);
     }
     return deletedUser.user;
-  }
+  } //! If deleted might want to also blacklist that jwt
 }

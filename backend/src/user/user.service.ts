@@ -11,32 +11,50 @@ export class UserService {
   constructor(@InjectKnex() private readonly knex: Knex, @Inject(DeviceService) private readonly deviceService: DeviceService) {}
 
   public async findUserById(userId: number): Promise<UserDto> {
-    const user = await this.knex<UserDto>('user')
+    const res = await this.knex<UserDto>('user')
       .select('user_id', 'username', 'email')
       .where('user_id', userId)
       .first();
+    const user: UserDto = {
+      userId: res.user_id,
+      username: res.username,
+      email: res.email
+    }
     return user;
   }
 
   public async findUserByUsername(username: string): Promise<UserDto> {
-    const user = await this.knex<UserDto>('user')
+    const res = await this.knex<UserDto>('user')
       .select('user_id', 'username', 'email')
       .where('username', username)
       .first();
+    const user: UserDto = {
+      userId: res.user_id,
+      username: res.username,
+      email: res.email
+    }
     return user;
   }
 
   public async findAllUsers(): Promise<UserDto[]> {
+    //! Doesn't actually return a UserDto 
     const users = await this.knex<UserDto>('user')
       .select('user_id', 'username', 'email');
     return users;
   }
 
   public async createUser(createUserDto: CreateUserDto): Promise<number> {
-    const password = await hashPassword(createUserDto.password);
-    const hashedUser = { ...createUserDto, password};
+    const hashedPassword = await hashPassword(createUserDto.password);
+    const hashedUser: CreateUserDto = {
+      username: createUserDto.username,
+      password: hashedPassword,
+      email: createUserDto.email
+    };
     const userId = await this.knex<UserDto>('user')
       .insert(hashedUser);
+    if (createUserDto.deviceEui) {
+      this.registerDevice(userId[0], createUserDto.deviceEui);
+    }
     return userId[0];
   }
 
@@ -54,9 +72,9 @@ export class UserService {
     .first();
 
     const updatedUser: CreateUserDto = {
-      username: updateInfo.newUsername? updateInfo.newUsername : user.username,
-      password: updateInfo.newPassword? updateInfo.newPassword : fullUser.password,
-      email: updateInfo.newEmail? updateInfo.newEmail : fullUser.email
+      username: updateInfo.newUsername ? updateInfo.newUsername : user.username,
+      password: updateInfo.newPassword ? updateInfo.newPassword : fullUser.password,
+      email: updateInfo.newEmail ? updateInfo.newEmail : fullUser.email,
     }
 
     const updateCount = await this.knex<CreateUserDto>('user').where('user_id', user.userId).update(updatedUser);
