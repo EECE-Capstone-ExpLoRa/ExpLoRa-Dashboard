@@ -1,7 +1,8 @@
 import { 
   BadRequestException,
-  Body, Controller, Delete, 
+  Body, CACHE_MANAGER, Controller, Delete, 
   Get,
+  Inject,
   NotFoundException, 
   Param, ParseIntPipe, Post, Put, 
   Req, 
@@ -9,6 +10,7 @@ import {
   UsePipes, 
   ValidationPipe 
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { 
   ApiBadRequestResponse, 
   ApiBearerAuth, ApiBody, 
@@ -16,6 +18,7 @@ import {
   ApiOperation, ApiParam, ApiTags, 
   ApiUnauthorizedResponse 
 } from '@nestjs/swagger';
+import { Cache } from 'cache-manager';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { DeviceDto } from 'src/devices/device.dto';
 import { UserDto, RegisterDeviceDto, UpdateUserDto, CreateUserDto } from './user.dto';
@@ -24,21 +27,9 @@ import { UserService } from './user.service';
 @Controller('users')
 @ApiTags('User')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
-  
-  @Get('username/:username')
-  @ApiOperation({summary: "Test endpoint for getting users by username"})
-  @ApiParam({name: "username", description: "The user's username"})
-  @ApiCreatedResponse({description: "The Queried user", type: UserDto})
-  @ApiNotFoundResponse({description: "User with the given username not found"})
-  public async findUserByUsername(@Param('username') username: string): Promise<UserDto> {
-    const user = await this.userService.findUserByUsername(username);
-    if (!user) {
-      throw new NotFoundException(`User with the username: ${username} not found`);
-    }
-    return user;
-  }
-
+  constructor(
+    private readonly userService: UserService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
   @Delete('devices/:eui')
   @UseGuards(JwtAuthGuard)
@@ -83,19 +74,6 @@ export class UserController {
     return registerDeviceDto;
   }
 
-  @Get(':id')
-  @ApiOperation({summary: "Test enpoint for getting users by id"})
-  @ApiNotFoundResponse({description: "User with the given Id not found"})
-  @ApiParam({name: "id", description: "The user's Id"})
-  @ApiCreatedResponse({description: "The Queried user", type: UserDto})
-  public async findUserById(@Param('id', ParseIntPipe) id: number): Promise<UserDto> {
-    const user = await this.userService.findUserById(id);
-    if (!user) {
-      throw new NotFoundException(`The user with the id: ${id} does not exist`);
-    }
-    return user;
-  }
-
   @Post()
   @ApiOperation({summary: "Allows users to create an account"})
   @ApiBody({type: CreateUserDto})
@@ -114,13 +92,6 @@ export class UserController {
         throw error;
       }
     }
-  }
-
-  @Get()
-  @ApiOperation({summary: "Test endpoint for getting all users"})
-  @ApiCreatedResponse({description: "List of Users", type: UserDto, isArray: true})
-  public async findAllUsers(): Promise<UserDto[]> {
-    return this.userService.findAllUsers();
   }
 
   @Put()
@@ -160,6 +131,9 @@ export class UserController {
     if (deletedUser.count === 0) {
       throw new NotFoundException(`The user with the id: ${userId} does not exist`);
     }
+    const bearer = req.headers.authorization;
+    const jwt = bearer.replace('Bearer ', '');
+    this.cacheManager.set(jwt, jwt, 36000000);
     return deletedUser.user;
-  } //! If deleted might want to also blacklist that jwt
+  }
 }

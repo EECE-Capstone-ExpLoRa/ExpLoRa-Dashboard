@@ -15,7 +15,12 @@ import { LocalStrategy } from "./local.strategy";
             useClass: JwtConfigService
         })
     ],
-    exports: [AuthService],
+    exports: [
+        AuthService, 
+        JwtModule.registerAsync({
+            useClass: JwtConfigService
+        })
+    ],
     providers: [AuthService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {};
