@@ -1,7 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { TimestreamService } from "./timestream.service";
 
 @Controller('timestream')
+@ApiTags('TimeStream')
 export class TimestreamController {
     constructor(private readonly timestreamService: TimestreamService) {}
     

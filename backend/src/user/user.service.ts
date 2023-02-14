@@ -1,62 +1,97 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectKnex } from 'nestjs-knex/dist/knex.decorators';
 import { Knex } from 'nestjs-knex/dist/knex.interfaces';
-
-import { UserDto, UserDeviceDto, UpdateUserDto, CreateUserDto } from './user.dto';
-import { DeviceDto } from 'src/devices/device.dto';
-import { hashPassword, isMatch } from 'src/utils/bcrypt';
+import { UserDto, UserDeviceDto, UpdateUserDto, CreateUserDto, CountAndUser, FullUser } from './user.dto';
+import { DeviceAndCount, DeviceDto } from 'src/devices/device.dto';
+import { hashPassword } from 'src/utils/bcrypt';
+import { DeviceService } from 'src/devices/device.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectKnex() private readonly knex: Knex) {}
+  constructor(@InjectKnex() private readonly knex: Knex, @Inject(DeviceService) private readonly deviceService: DeviceService) {}
 
   public async findUserById(userId: number): Promise<UserDto> {
-    const user = await this.knex<UserDto>('user')
+    const res = await this.knex<UserDto>('user')
       .select('user_id', 'username', 'email')
       .where('user_id', userId)
       .first();
+    const user: UserDto = {
+      userId: res.user_id,
+      username: res.username,
+      email: res.email
+    }
     return user;
   }
 
   public async findUserByUsername(username: string): Promise<UserDto> {
-    const user = await this.knex<UserDto>('user')
+    const res = await this.knex<UserDto>('user')
       .select('user_id', 'username', 'email')
       .where('username', username)
       .first();
+    const user: UserDto = {
+      userId: res.user_id,
+      username: res.username,
+      email: res.email
+    }
     return user;
   }
 
   public async findAllUsers(): Promise<UserDto[]> {
+    //! Doesn't actually return a UserDto 
     const users = await this.knex<UserDto>('user')
       .select('user_id', 'username', 'email');
     return users;
   }
 
-  public async create(createUserDto: CreateUserDto): Promise<number> {
-    console.log(`Raw password: ${createUserDto.password}`);
-    const password = await hashPassword(createUserDto.password);
-    console.log(`Stored password: ${password}`);
-    const hashedUser = { ...createUserDto, password};
+  public async createUser(createUserDto: CreateUserDto): Promise<number> {
+    const hashedPassword = await hashPassword(createUserDto.password);
+    const hashedUser: CreateUserDto = {
+      username: createUserDto.username,
+      password: hashedPassword,
+      email: createUserDto.email
+    };
     const userId = await this.knex<UserDto>('user')
       .insert(hashedUser);
-    console.log(userId);
+    if (createUserDto.deviceEui) {
+      this.registerDevice(userId[0], createUserDto.deviceEui);
+    }
     return userId[0];
   }
 
-  public async update(userId: number, updateUserDto: UpdateUserDto): Promise<number> {
-    const updateCount = await this.knex<UserDto>('user')
-      .where('user_id', userId)
-      .update(updateUserDto);
-    console.log(updateCount)
-    return updateCount;
+  public async updateUser(user: UserDto, updateInfo: UpdateUserDto): Promise<CountAndUser>{
+    if (updateInfo.newPassword) {
+      const hashedPassword = await hashPassword(updateInfo.newPassword);
+      updateInfo = {
+        ...updateInfo,
+        newPassword: hashedPassword
+      }
+    }
+    
+    const fullUser: CreateUserDto = await this.knex<CreateUserDto>('user')
+    .where('user_id', user.userId)
+    .first();
+
+    const updatedUser: CreateUserDto = {
+      username: updateInfo.newUsername ? updateInfo.newUsername : user.username,
+      password: updateInfo.newPassword ? updateInfo.newPassword : fullUser.password,
+      email: updateInfo.newEmail ? updateInfo.newEmail : fullUser.email,
+    }
+
+    const updateCount = await this.knex<CreateUserDto>('user').where('user_id', user.userId).update(updatedUser);
+    const newUser: UserDto = await this.findUserById(user.userId);
+    return {
+      user: newUser,
+      count: updateCount
+
+    }
   }
 
-  public async delete(userId: number): Promise<number> {
-    const deleteCount = await this.knex<UserDto>('user')
+  public async deleteUser(userId: number): Promise<CountAndUser> {
+    const user = await this.findUserById(userId);
+    const count = await this.knex<UserDto>('user')
       .where('user_id', userId)
       .del();
-    console.log(deleteCount);
-    return deleteCount;
+    return {user, count};
   }
 
   public async findAllDevices(userId: number): Promise<DeviceDto[]> {
@@ -82,11 +117,29 @@ export class UserService {
       .insert(new UserDeviceDto(userId, deviceEui));
   }
 
-  public async unregisterDevice(userId: number, deviceEui: string): Promise<number> {
+  public async unregisterDevice(userId: number, deviceEui: string) {
+    const device: DeviceDto = await this.deviceService.findOne(deviceEui);
     const deleteCount = await this.knex<UserDeviceDto>('user_device')
       .where('user_id', userId)
       .andWhere('device_eui', deviceEui)
       .del();
-    return deleteCount;
+    const deviceObj: DeviceAndCount = {
+      device: device,
+      count: deleteCount
+    }
+    return deviceObj;
+  }
+
+  public async findFullUser(username: string) {
+    const user = await this.knex('user')
+    .where('username', username)
+    .first();
+    const fullUser: FullUser = {
+      userId: user.user_id,
+      email: user.email,
+      username: user.username,
+      password: user.password
+    }
+    return fullUser;
   }
 }
