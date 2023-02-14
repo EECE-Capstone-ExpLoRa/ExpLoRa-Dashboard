@@ -15,7 +15,7 @@ const App = () => {
         }}
       >
         
-        <SignIn/>
+        <Register/>
       </div>
     </ChakraProvider>
   );

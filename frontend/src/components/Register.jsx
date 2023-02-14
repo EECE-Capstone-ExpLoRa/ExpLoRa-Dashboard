@@ -13,18 +13,10 @@ import { Field, Form, Formik } from 'formik';
 
 function Register() {
   
-  function validateFirstName(value) {
+  function validateEmail(value) {
     let error
     if (!value) {
-      error = 'First Name is required!'
-    }
-    return error
-  }
-
-  function validateLastName(value) {
-    let error
-    if (!value) {
-      error = 'Last Name is required!'
+      error = 'Email is required!'
     }
     return error
   }
@@ -74,32 +66,16 @@ function Register() {
             </h1>
           </div>
 
-          <Field name='firstname' validate={validateFirstName}>
+          <Field name='email' validate={validateEmail}>
             {({ field, form }) => (
-              <FormControl isInvalid={form.errors.firstname && form.touched.firstname}>
-                <FormLabel color='#6C5B7B'> First Name </FormLabel>
+              <FormControl isInvalid={form.errors.email && form.touched.email}>
+                <FormLabel color='#6C5B7B'> Email </FormLabel>
                 <Input {...field} 
                   color='#6C5B7B'
-                  placeholder='First Name' 
+                  placeholder='Email' 
                   onChange={Formik.handleChange} 
                 />
-                <FormErrorMessage>{form.errors.firstname}</FormErrorMessage>
-              </FormControl>
-            )}
-          </Field>
-
-          &nbsp;
-
-          <Field name='lastname' validate={validateLastName}>
-            {({ field, form }) => (
-              <FormControl isInvalid={form.errors.lastname && form.touched.lastname}>
-                <FormLabel color='#6C5B7B'> Last Name </FormLabel>
-                <Input {...field} 
-                  color='#6C5B7B'
-                  placeholder='Last Name' 
-                  onChange={Formik.handleChange} 
-                />
-                <FormErrorMessage>{form.errors.lastname}</FormErrorMessage>
+                <FormErrorMessage>{form.errors.email}</FormErrorMessage>
               </FormControl>
             )}
           </Field>
@@ -145,6 +121,21 @@ function Register() {
                 fontFamily: 'system-ui'
               }}>
                 Sign up
+            </h1>
+          </Button>
+
+          <Button style = {{
+            height: '200%',
+            width: '60%',
+            backgroundColor: 'transparent'
+            }}>
+            <h1 
+              style={{
+                color: '#355C7D',
+                fontFamily: 'system-ui',
+                fontSize: '80%',               
+              }}>
+                Already have an account?
             </h1>
           </Button>
           

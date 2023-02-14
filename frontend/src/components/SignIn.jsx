@@ -102,6 +102,23 @@ function SignIn() {
                 Login
             </h1>
           </Button>
+
+          &nbsp;
+
+          <Button style = {{
+            height: '200%',
+            width: '60%',
+            backgroundColor: 'transparent'
+            }}>
+            <h1 
+              style={{
+                color: '#355C7D',
+                fontFamily: 'system-ui',
+                fontSize: '80%',               
+              }}>
+                Don't have an account yet?
+            </h1>
+          </Button>
           
         </Form>
       )}
