@@ -1,0 +1,15 @@
+syntax = “proto3”
+
+import "google/protobuf/timestamp.proto";
+
+// Uplink message from the end device to the network
+message UplinkMessage {
+  uint32 id = 1;
+  google.protobuf.Timestamp time = 2;
+  oneof payload {
+    option (validate.required) = true;
+
+    float numeric = 4;
+    string textual = 5;
+  }
+}
