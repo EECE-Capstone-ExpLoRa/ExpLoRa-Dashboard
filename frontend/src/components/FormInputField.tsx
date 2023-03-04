@@ -8,6 +8,7 @@ export const FormInputField = ({label, required, ...props}: any) => {
         <FormControl isRequired={required} isInvalid={meta.error !== undefined && meta.touched}>
             <FormLabel htmlFor={field.name}>{label}</FormLabel>
             <Input
+            variant='filled'
             {...field}
             {...props}
             />

@@ -39,10 +39,10 @@ export const Register = () => {
         <Box bg='white' p={10} rounded='md'>
           <form onSubmit={formik.handleSubmit}>
             <VStack spacing={4} align='flex-start'>
-              <FormInputField label='Email Address' required={true} id='email' name='email' type='email' variant='filled'/>
-              <FormInputField label='Username' required={true} id='username' name='username' type='text' variant='filled'/>
-              <FormInputField label='Password' required={true} id='password' name='password' type='password' variant='filled'/>
-              <FormInputField label='Device Eui' required={false} id='deviceEui' name='deviceEui' type='text' variant='filled'/>
+              <FormInputField label='Email Address' required={true} id='email' name='email' type='email'/>
+              <FormInputField label='Username' required={true} id='username' name='username' type='text'/>
+              <FormInputField label='Password' required={true} id='password' name='password' type='password'/>
+              <FormInputField label='Device Eui' required={false} id='deviceEui' name='deviceEui' type='text'/>
               <Button type="submit" colorScheme="purple" width="full">Sign Up</Button>
               <Link to="/signin">Already have an account?</Link>
             </VStack>
