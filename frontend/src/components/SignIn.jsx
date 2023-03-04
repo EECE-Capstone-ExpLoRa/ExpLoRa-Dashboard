@@ -6,7 +6,8 @@ import {
   Input,
   Button,
 } from '@chakra-ui/react'
-import styles from './styles.module.css'; 
+import styles from './styles.module.css';
+import { Link } from "react-router-dom";
 
 // The below import defines which components come from formik
 import { Field, Form, Formik } from 'formik';
@@ -116,7 +117,7 @@ function SignIn() {
                 fontFamily: 'system-ui',
                 fontSize: '80%',               
               }}>
-                Don't have an account yet?
+                <Link to="/register">Don't have an account yet?</Link>
             </h1>
           </Button>
           

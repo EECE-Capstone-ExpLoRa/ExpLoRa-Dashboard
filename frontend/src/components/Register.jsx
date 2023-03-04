@@ -6,10 +6,10 @@ import {
   Input,
   Button
 } from '@chakra-ui/react'
-import styles from './styles.module.css'; 
-
-// The below import defines which components come from formik
+import styles from './styles.module.css';
+import { Link } from "react-router-dom";
 import { Field, Form, Formik } from 'formik';
+import UserService from '../services/user.service'
 
 function Register() {
   
@@ -41,9 +41,10 @@ function Register() {
     <Formik
       onSubmit={(values, actions) => {
         setTimeout(() => {
-          alert(JSON.stringify(values, null, 2))
-          actions.setSubmitting(false)
+          console.log(values.email)
+          UserService.register(values.email, values.username, values.password)
         }, 1000)
+        console.log("hello world")
       }}
     >
       {(props) => (
@@ -135,7 +136,7 @@ function Register() {
                 fontFamily: 'system-ui',
                 fontSize: '80%',               
               }}>
-                Already have an account?
+                <Link to="/signin">Already have an account?</Link>
             </h1>
           </Button>
           
