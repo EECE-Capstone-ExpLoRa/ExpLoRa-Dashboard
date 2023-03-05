@@ -9,7 +9,7 @@ import {
   
 export const Home = () => {
   return (
-    <Flex align='center' justify='center' backgroundColor='#F8B195' h='100vh'>
+    <Flex align='center' justify='center' backgroundColor='backgroundColor' h='100vh'>
       <UnorderedList>
         <ListItem>
           <Link to="/">Home</Link>

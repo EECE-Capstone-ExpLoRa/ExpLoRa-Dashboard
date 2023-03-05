@@ -25,13 +25,13 @@ export const LogIn = () => {
     }}
     >
       {formik => (
-            <Flex bg='#F8B195' align='center' justify='center' h='100vh'>
+            <Flex bg='backgroundColor' align='center' justify='center' h='100vh'>
             <Box bg='white' p={10} rounded='md'>
              <form onSubmit={formik.handleSubmit}>
                <VStack spacing={4} align='flex-start'>
                  <FormInputField label='Username' required={true} id='username' name='username' type='text' variant='filled'/>
                  <FormInputField label='Password' required={true} id='password' name='password' type='password' variant='filled'/>
-                 <Button type="submit" colorScheme="purple" width="full">Log In</Button>
+                 <Button type="submit" backgroundColor="backgroundColor" width="full" color='white'>Log In</Button>
                </VStack>
              </form>
             </Box>

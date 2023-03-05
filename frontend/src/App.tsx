@@ -6,10 +6,11 @@ import { Home } from './components/Home';
 import { NoMatch } from './components/NoMatch';
 import { Register } from './components/Register';
 import { LogIn } from './components/LogIn';
+import { theme } from './utils/theme';
 
 function App() {
   return (
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       {/* <div style={{
         display: 'flex',
         alignItems: 'center',
