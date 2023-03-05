@@ -35,7 +35,7 @@ export const Register = () => {
       action.resetForm();
     }}>
       {formik => (
-      <Flex bg='beach.100' align='center' justify='center' h='100vh'>
+      <Flex bg='test2.100' align='center' justify='center' h='100vh'>
         <Box bg='white' p={10} rounded='md'>
           <form onSubmit={formik.handleSubmit}>
             <VStack spacing={4} align='flex-start'>
@@ -43,8 +43,7 @@ export const Register = () => {
               <FormInputField label='Username' required={true} id='username' name='username' type='text'/>
               <FormInputField label='Password' required={true} id='password' name='password' type='password'/>
               <FormInputField label='Device Eui' required={false} id='deviceEui' name='deviceEui' type='text'/>
-              <Button type="submit" colorScheme='beach' color='black' width="full">Sign Up</Button> 
-              {/* {was colorScheme before idk why we had to change it lol} */}
+              <Button type="submit" colorScheme='test2' color='black' width="full">Sign Up</Button> 
               <Link to="/signin">Already have an account?</Link>
             </VStack>
           </form>
