@@ -5,7 +5,7 @@ import { loginUserObject } from "../utils/loginUser.dto";
 import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
 
-export const LogIn = () => {
+const LogIn = () => {
   return (
     <Formik
     initialValues={{username: '',password: '',}}
@@ -26,7 +26,7 @@ export const LogIn = () => {
     >
       {formik => (
             <Flex bg='test2.100' align='center' justify='center' h='100vh'>
-            <Box bg='white' p={10} rounded='md'>
+            <Box bg='white' p={10} rounded='md' w='25%'>
              <form onSubmit={formik.handleSubmit}>
                <VStack spacing={4} align='flex-start'>
                  <FormInputField label='Username' required={true} id='username' name='username' type='text' variant='filled'/>
@@ -38,5 +38,7 @@ export const LogIn = () => {
          </Flex>
       )}
     </Formik>
-  )
-}
+  );
+};
+
+export default LogIn;

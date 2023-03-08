@@ -12,7 +12,7 @@ import { register } from '../services/user.service';
 import * as Yup from 'yup';
 import { FormInputField } from './FormInputField';
 
-export const Register = () => {
+const Register = () => {
   const mailFormat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   return (
     <Formik
@@ -36,7 +36,7 @@ export const Register = () => {
     }}>
       {formik => (
       <Flex bg='test2.100' align='center' justify='center' h='100vh'>
-        <Box bg='white' p={10} rounded='md'>
+        <Box bg='white' p={10} rounded='md' w='25%'>
           <form onSubmit={formik.handleSubmit}>
             <VStack spacing={4} align='flex-start'>
               <FormInputField label='Email Address' required={true} id='email' name='email' type='email'/>
@@ -51,5 +51,7 @@ export const Register = () => {
       </Flex>
       )}
     </Formik>
-  )
-}
+  );
+};
+
+export default Register;

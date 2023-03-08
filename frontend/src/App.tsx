@@ -2,11 +2,11 @@ import { ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Home } from './components/Home';
-import { NoMatch } from './components/NoMatch';
-import { Register } from './components/Register';
-import { LogIn } from './components/LogIn';
-import { theme } from './utils/theme';
+import Home from './components/Home';
+import LogIn from './components/LogIn';
+import Register from './components/Register';
+import theme from './utils/theme';
+import NoMatch from './components/NoMatch';
 
 function App() {
   return (
