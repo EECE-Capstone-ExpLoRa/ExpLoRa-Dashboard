@@ -1,4 +1,4 @@
-import { Box, Button, Flex, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, useToast, VStack } from "@chakra-ui/react";
 import { Formik } from "formik";
 import { login } from "../services/user.service";
 import { loginUserObject } from "../utils/loginUser.dto";
@@ -6,6 +6,14 @@ import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
 
 const LogIn = () => {
+  console.log("Render")
+  const toast = useToast();
+
+  // const { isError, isSuccess, isLoading, data, error } = useQuery(
+
+  // )
+
+  
   return (
     <Formik
     initialValues={{username: '',password: '',}}
@@ -15,12 +23,19 @@ const LogIn = () => {
     })}
     onSubmit={async (values, action) => {
       console.log('Log in submit has been called');
+      toast({
+        title: 'Invalid username or password',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      })
       const user: loginUserObject = {
         username: values.username,
         password: values.password,
       };
       alert(JSON.stringify(user, null, 2));
-      await login(user);
+      const loginRes = await login(user);
+      console.log(`Response is: ${loginRes}`);
       action.resetForm();
     }}
     >
