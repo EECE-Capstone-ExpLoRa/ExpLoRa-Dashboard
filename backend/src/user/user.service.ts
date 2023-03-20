@@ -134,12 +134,16 @@ export class UserService {
     const user = await this.knex('user')
     .where('username', username)
     .first();
-    const fullUser: FullUser = {
-      userId: user.user_id,
-      email: user.email,
-      username: user.username,
-      password: user.password
+        
+    if (user) {
+      const fullUser: FullUser = {
+        userId: user.user_id,
+        email: user.email,
+        username: user.username,
+        password: user.password
+      }
+      return fullUser;
     }
-    return fullUser;
+    return undefined;
   }
 }
