@@ -20,4 +20,12 @@ export const login = async(user: loginUserObject) => {
     return accessToken;
 }
 
+export const logout = async() => {
+    const res = await exploraApi.get('/auth/logout')
+
+    console.log(res)
+
+    return "hi"
+}
+
 export default exploraApi;
