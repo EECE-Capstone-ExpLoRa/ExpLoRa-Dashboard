@@ -1,8 +1,7 @@
 import { Box, Grid, GridItem, HStack, Image } from "@chakra-ui/react";
-import Card from "./Card";
 import AirQualityChart from "./charts/AirQualityChart";
 import PressureChart from "./charts/PressureChart";
-import AccelerationChart from "./charts/AccelerationChart";
+import AccelerationCard from "./charts/AccelerationChart"
 import TemperatureChart from "./charts/TemperatureChart";
 import Map from "./charts/Map";
 import NavBar from "./NavBar";
@@ -21,7 +20,7 @@ const Dashboard = () => {
             <Map />
           </GridItem>
           <GridItem rowSpan={1} colSpan={1}>
-            <AccelerationChart />
+            <AccelerationCard />
           </GridItem>
           <GridItem rowSpan={2} colSpan={1}>
             <PressureChart />

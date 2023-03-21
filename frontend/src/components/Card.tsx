@@ -1,5 +1,5 @@
 import { Box, Button, Flex, HStack, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Text, useDisclosure } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useState } from "react";
 
 const ExpandableCard=({children, isOpen, title, modalSize="xl"}: any) => {
   const [open, setOpen] = useState(isOpen)
@@ -44,12 +44,6 @@ const ExpandableCard=({children, isOpen, title, modalSize="xl"}: any) => {
             <Text fontSize="sm">{title}</Text>
           </HStack>
           <HStack>
-            <Select size="sm" onChange={(e) => console.log(e.target.value)}>
-              <option value='x'>X</option>
-              <option value='y'>Y</option>
-              <option value='z'>Z</option>
-              <option value="all">All</option>
-            </Select>
             {renderModalOpenButton()}
           </HStack>
         </Flex>

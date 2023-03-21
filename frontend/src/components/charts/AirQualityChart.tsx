@@ -1,59 +1,22 @@
 import { ReactElement } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import ExpandableCard from '../Card';
+import moment from 'moment'
 
-
-const data = [
-  {
-    name: 'Data A',
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: 'Data B',
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: 'Data C',
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: 'Data D',
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: 'Data E',
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: 'Data F',
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: 'Data G',
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
+const chartData = [
+  { ax: 14, ay: 20, az: 9, time: 1503617297689 },
+  { ax: 15, ay: 10, az: 11, time: 1503616962277 },
+  { ax: 15, ay: 12, az: 2, time: 1503616882654 },
+  { ax: 20, ay: 30, az: 7, time: 1503613184594 },
+  { ax: 15, ay: 40, az: 50, time: 1503611308914 },
+]
 
 const AirQualityChart = (): ReactElement => {
   return (
     <ExpandableCard title="Air Quality">
       <ResponsiveContainer width={'99%'} height={225}>
         <LineChart
-          data={data}
+          data={chartData}
           margin={{
             top: 5,
             right: 20,
@@ -62,12 +25,13 @@ const AirQualityChart = (): ReactElement => {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis dataKey="time" domain={['auto', 'auto']} name="Time" tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')} type="number" />
           <YAxis />
           <Tooltip />
           <Legend />
-          <Line type="monotone" dataKey="pv" stroke="#25386A" activeDot={{ r: 8 }} />
-          <Line type="monotone" dataKey="uv" stroke="#70A8B7" />
+          <Line type="monotone" dataKey="ax" stroke="#25386A" activeDot={{ r: 8 }} />
+          <Line type="monotone" dataKey="ay" stroke="#70A8B7" />
+          <Line type="monotone" dataKey="az" stroke="#25386A" />
         </LineChart>
       </ResponsiveContainer>
     </ExpandableCard>

@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import Card from '../Card';
 
 const containerStyle = {
-  height: '610px'
+  height: '610px',
+  width: 'full'
 };
 
 const Map = () => {
@@ -15,8 +16,6 @@ const Map = () => {
       navigator.geolocation.watchPosition(function(position) {
         setLat(position.coords.latitude)
         setLng(position.coords.longitude)
-
-        console.log(position.coords)
       });
     }
   }, [])
