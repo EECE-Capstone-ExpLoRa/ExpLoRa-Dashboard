@@ -11,7 +11,7 @@ export class TimestreamController {
     @Get('/euis')
     async getEuis() {
         // NOTE: Should only use for testing, probably shouldn't give user access to all EUIs
-        return await this.timestreamService.getAllEuis();
+        return await this.timestreamService.getEuis();
     }
 
     @Get(':deviceEui/measures')
@@ -24,11 +24,16 @@ export class TimestreamController {
         return await this.timestreamService.getDeviceTimes(eui);
     }
 
+    @Get(':deviceEui/accelerations')
+    async getAccelerations(@Param('deviceEui') eui: string) {
+        return await this.timestreamService.getAllAccelerations(eui); 
+    }
+
     @Get(':deviceEui/:measureName')
     async getDeviceData(
         @Param('measureName') measure: string, 
         @Param('deviceEui') eui: string,
         @Body() timefilterDto: TimeFilterDto) {
-        return await this.timestreamService.getDeviceData(measure, eui, timefilterDto);
+            return await this.timestreamService.getDeviceData(measure, eui, timefilterDto);
     }
 }

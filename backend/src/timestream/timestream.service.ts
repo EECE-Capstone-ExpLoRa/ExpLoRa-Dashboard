@@ -2,6 +2,13 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { TimestreamQueryClient, QueryCommand, QueryCommandOutput, QueryCommandInput } from "@aws-sdk/client-timestream-query";
 import { TimeFilterDto } from "./timestream.dto";
 
+type AccelerationsResponse = {
+    timeStamp: number,
+    AccelerationX: number,
+    AccelerationY: number,
+    AccelerationZ: number,
+}
+
 @Injectable()
 export class TimestreamService {
     private queryClient: TimestreamQueryClient = new TimestreamQueryClient({region: "us-east-1"});
@@ -59,9 +66,54 @@ export class TimestreamService {
         return res;
     }
 
-    async getAllEuis(): Promise<string[]> {
-        console.log("Getting EUIS");
-        const queryRequest = `SELECT DISTINCT device_eui FROM ${this.dbTable}`;
+    async getAllAccelerations(deviceEui) {
+        const queryRequest: string = `SELECT time, measure_name, measure_value::bigint FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' AND (measure_name = 'Acceleration X' OR measure_name = 'Acceleration Y' OR measure_name = 'Acceleration Z') ORDER BY time ASC`;
+        const queryResponse = await this.handleQuery(queryRequest);
+        const rows = queryResponse.Rows;
+        const res = [];
+
+        for (let i = 0; i < rows.length; i = i+3) {
+            const currentRow = rows[i];
+            const timestamp = currentRow.Data[0].ScalarValue;
+            const newDate = Math.floor(Date.parse(timestamp.split('.')[0])/1000);
+            const accels = [rows[i], rows[i+1], rows[i+2]];
+            const vals: AccelerationsResponse = {
+                timeStamp: newDate, 
+                AccelerationX: undefined, 
+                AccelerationY: undefined, 
+                AccelerationZ: undefined
+            };
+            
+            accels.forEach((acceleration) => {
+                const data = acceleration.Data;
+                const name = data[1].ScalarValue.replace(' ', '');
+                const val = parseInt(data[2].ScalarValue);
+                vals[name] = val;
+            });
+            res.push(vals);
+        }
+        console.log(res);
+        return res;
+    }
+
+    async getAllData(nextToken: string = null) {
+        const queryRequest: string = `SELECT * FROM ${this.dbTable} ORDER BY time ASC LIMIT 100`;
+        const queryResponse = await this.handleQuery(queryRequest);
+        return queryResponse;
+    }
+
+            /*
+                accelerationZ: [{timeStamp, value}...]
+                accelerationY: [{timeStamp, value}...]
+                accelerationX: [{timeStamp, value}...]
+                roll: [{timeStamp, value}...]
+                pitch: [{timeStamp, value}...]
+                yaw: [{timeStamp, value}...]
+
+            */
+
+    async getEuis() {
+        const queryRequest: string = `SELECT DISTINCT device_eui FROM ${this.dbTable}`;
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
         const euis = [];
