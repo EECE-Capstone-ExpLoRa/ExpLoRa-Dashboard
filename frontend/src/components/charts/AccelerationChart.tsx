@@ -11,8 +11,7 @@ import {
   Line
 } from 'recharts';
 import moment from 'moment'
-import { getAccelerationX} from '../../services/timestream.service';
-
+import { getAccelerationX, getAccelerationY, getAccelerationZ} from '../../services/timestream.service';
 
 const chartData = [
   { timestamp: 1578930642, value: 14 },
@@ -50,14 +49,14 @@ const chartData = [
   { timestamp: 1678924401, value: -18 }
 ]
 
-const AccelerationCard = ({isOpen, title, modalSize="xl"}: any) => {
+const AccelerationCard = ({isOpen, title, modalSize="full"}: any) => {
   const [open, setOpen] = useState(isOpen)
   const [accelerationDir, setAccelerationDir] = useState('x')
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure() 
 
   const expandableContent = () => {
     return (
-      <Box width="full" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
+      <Box width="full" height="250px" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
         <AccelerationChart accelerationDir={accelerationDir} />
       </Box>
     );
@@ -65,7 +64,7 @@ const AccelerationCard = ({isOpen, title, modalSize="xl"}: any) => {
 
   const renderDirectionSelect = (size: string) => {
     return (
-      <Select size={size} onChange={(e) => setAccelerationDir(e.target.value)}>
+      <Select value={accelerationDir} size={size} onChange={(e) => setAccelerationDir(e.target.value)}>
         <option value='x'>X</option>
         <option value='y'>Y</option>
         <option value='z'>Z</option>
@@ -112,7 +111,9 @@ const AccelerationCard = ({isOpen, title, modalSize="xl"}: any) => {
           <ModalHeader>Acceleration</ModalHeader> 
           <ModalCloseButton />
           <ModalBody>
-            <AccelerationChart accelerationDir={accelerationDir} />
+            <Box height="600px">
+              <AccelerationChart accelerationDir={accelerationDir} />
+            </Box>
             {renderDirectionSelect("sm")}
           </ModalBody>
           <ModalFooter>
@@ -128,40 +129,74 @@ const AccelerationCard = ({isOpen, title, modalSize="xl"}: any) => {
 
 export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) => {
   const [accelerationXData, setAccelerationXData] = useState([])
+  const [accelerationYData, setAccelerationYData] = useState([])
+  const [accelerationZData, setAccelerationZData] = useState([])
 
   useEffect(() => {
-    getAccelerationX("00-80-00-00-04-05-b6-b1").then((res) => {      
+    getAccelerationX("00-80-00-00-04-05-b6-b1").then((res) => {  
+      console.log(res)    
       setAccelerationXData(res)
     })
-  }, [])
+    getAccelerationY("00-80-00-00-04-05-b6-b1").then((res) => {      
+      setAccelerationYData(res)
+    })
+    getAccelerationZ("00-80-00-00-04-05-b6-b1").then((res) => {      
+      setAccelerationZData(res)
+    })
 
-  console.log(accelerationXData)
+  }, [])  
+
+  const getAccelerationData = () => {
+    console.log(accelerationDir)
+    switch(accelerationDir) {
+      case "x": 
+        return accelerationXData;
+
+      case "y":
+        return accelerationYData;
+
+      case "z":
+        return accelerationZData;
+
+      case "all":
+        return [];
+
+      default: 
+        return [];
+    }
+  }
 
   return (
-      <ResponsiveContainer width="100%" height={225}>
-        <LineChart
-          data={chartData}
-          margin={{
-            top: 0,
-            right: 0,
-            left: 0,
-            bottom: 0,
-          }}
-        >
-          <CartesianGrid strokeDasharray="5 5" />
-          <XAxis height={50} dataKey="timestamp" domain={['auto', 'auto']} name="Time" tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm Do')} type="number" />
-          <YAxis height={50} />
-          <Tooltip />
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart
+        data={getAccelerationData()}
+        margin={{
+          top: 5,
+          right: 20,
+          left: 5,
+          bottom: 5,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis height={50} dataKey="timestamp" domain={['auto', 'auto']} name="Time" tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm:ss Do')} type="number" />
+        <YAxis height={50} />
+        <Tooltip />
+        {
+          accelerationDir === "all" && 
           <Legend />
-          {
-         // renderDataLines()
-          }
+        }
+        {
+        // renderDataLines()
+        }
+        { accelerationDir !== "all" &&
           <Line type="monotone" dataKey="value" stroke="#25386A" activeDot={{ r: 8 }} />
-          <Line type="monotone" dataKey="value2" stroke="#70A8B7" />
-          <Line type="monotone" dataKey="value3" stroke="#25386A" />
-        </LineChart>
-      </ResponsiveContainer>
-    );
+        }
+        <Line type="monotone" dataKey="ax" stroke="#25386A" activeDot={{ r: 8 }} />
+        <Line type="monotone" dataKey="ay" stroke="#70A8B7" />
+        <Line type="monotone" dataKey="az" stroke="#25386A" />
+      </LineChart>
+    </ResponsiveContainer>
+  );
         
 }
 
