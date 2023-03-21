@@ -4,6 +4,7 @@ import { login } from "../services/user.service";
 import { loginUserObject } from "../utils/loginUser.dto";
 import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
+import { Link } from "react-router-dom";
 
 const LogIn = () => {
   console.log("Render")
@@ -47,6 +48,7 @@ const LogIn = () => {
                  <FormInputField label='Username' required={true} id='username' name='username' type='text' variant='filled'/>
                  <FormInputField label='Password' required={true} id='password' name='password' type='password' variant='filled'/>
                  <Button type="submit" colorScheme="test2" width="full" color='white'>Log In</Button>
+                 <Link to="/register">Don't have an account yet?</Link>
                </VStack>
              </form>
             </Box>
