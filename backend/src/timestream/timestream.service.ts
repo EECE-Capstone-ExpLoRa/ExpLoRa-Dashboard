@@ -40,7 +40,11 @@ export class TimestreamService {
         const res = [];
         rows.forEach((row) => {
             const data = row.Data;
-            res.push({timestamp: data[0].ScalarValue, value: data[1].ScalarValue});
+            const timestamp = data[0].ScalarValue;
+            const value = data[1].ScalarValue;
+            // console.log(Date.parse(value));
+            const newDate = Math.floor(Date.parse(timestamp.split('.')[0])/1000);
+            res.push({timestamp: newDate, value: value});
 
         });
         console.log(res);
