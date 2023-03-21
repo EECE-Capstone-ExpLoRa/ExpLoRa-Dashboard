@@ -2,7 +2,7 @@ import { Box, Button, Flex, HStack, Image, Modal, ModalBody, ModalCloseButton, M
 import { useState } from "react";
 
 const ExpandableCard=({children, isOpen, title, modalSize="xl"}: any) => {
-  const [open, setOpen] = useState(isOpen)
+  const [open, setOpen] = useState(true)
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure()
 
 

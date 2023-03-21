@@ -49,8 +49,8 @@ const chartData = [
   { timestamp: 1678924401, value: -18 }
 ]
 
-const AccelerationCard = ({isOpen, title, modalSize="full"}: any) => {
-  const [open, setOpen] = useState(isOpen)
+const AccelerationCard = ({isOpen, modalSize="full"}: any) => {
+  const [open, setOpen] = useState(true)
   const [accelerationDir, setAccelerationDir] = useState('x')
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure() 
 
@@ -145,9 +145,6 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
     })
     getAcceleration("00-80-00-00-04-05-b6-b1").then((res) => {
       setAccelerationData(res)
-
-      console.log(JSON.stringify(accelerationData))
-
     })
 
   }, [])  

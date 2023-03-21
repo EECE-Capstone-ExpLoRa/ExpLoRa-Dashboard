@@ -12,7 +12,7 @@ const chartData = [
 ]
 
 const AirQualityCard = ({isOpen, modalSize="xl"}: any) => {
-  const [open, setOpen] = useState(isOpen)
+  const [open, setOpen] = useState(true)
   const [qualityType, setQualityType] = useState('x')
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure() 
 
