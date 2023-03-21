@@ -3,7 +3,7 @@ import { TimestreamQueryClient, QueryCommand, QueryCommandOutput, QueryCommandIn
 import { TimeFilterDto } from "./timestream.dto";
 
 type AccelerationsResponse = {
-    timeStamp: number,
+    timestamp: number,
     AccelerationX: number,
     AccelerationY: number,
     AccelerationZ: number,
@@ -78,7 +78,7 @@ export class TimestreamService {
             const newDate = Math.floor(Date.parse(timestamp.split('.')[0])/1000);
             const accels = [rows[i], rows[i+1], rows[i+2]];
             const vals: AccelerationsResponse = {
-                timeStamp: newDate, 
+                timestamp: newDate, 
                 AccelerationX: undefined, 
                 AccelerationY: undefined, 
                 AccelerationZ: undefined
