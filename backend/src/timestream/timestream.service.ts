@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { TimestreamQueryClient, QueryCommand, QueryCommandOutput, QueryCommandInput } from "@aws-sdk/client-timestream-query";
+import { TimeFilterDto } from "./timestream.dto";
 
 @Injectable()
 export class TimestreamService {
@@ -22,9 +23,8 @@ export class TimestreamService {
         }
     }
 
-    async queryBuilder(measureName: string, deviceEui: string) {
+    async getDeviceData(measureName: string, deviceEui: string, timefilterDto: TimeFilterDto) {
         let measureType;
-        
         switch(measureName) {
             case 'time':
                 measureType = 'varchar';
@@ -34,7 +34,16 @@ export class TimestreamService {
                 break;
         };
 
-        const queryRequest: string = `SELECT time, measure_value::bigint FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' AND measure_name = '${measureName}' ORDER BY time ASC`;
+        let queryRequest = `SELECT time, measure_value::${measureType} FROM ${this.dbTable} 
+            WHERE device_eui = '${deviceEui}' AND measure_name = '${measureName}'`;
+        if (timefilterDto.min) {
+            console.log("concating")
+            queryRequest += ` AND time >= '${timefilterDto.min}'`;
+        }
+        if (timefilterDto.max) {
+            queryRequest += ` AND time <= '${timefilterDto.max}'`;
+        }
+
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
         const res = [];
@@ -50,28 +59,39 @@ export class TimestreamService {
         return res;
     }
 
-    async getAllData(nextToken: string = null) {
-        const queryRequest: string = `SELECT * FROM ${this.dbTable} ORDER BY time ASC LIMIT 100`;
-        const queryResponse = await this.handleQuery(queryRequest);
-        return queryResponse;
-    }
-
-            /*
-                accelerationZ: [{timeStamp, value}...]
-                accelerationY: [{timeStamp, value}...]
-                accelerationX: [{timeStamp, value}...]
-                roll: [{timeStamp, value}...]
-                pitch: [{timeStamp, value}...]
-                yaw: [{timeStamp, value}...]
-
-            */
-
-    async getEuis() {
-        const queryRequest: string = `SELECT DISTINCT device_eui FROM ${this.dbTable}`;
+    async getAllEuis(): Promise<string[]> {
+        console.log("Getting EUIS");
+        const queryRequest = `SELECT DISTINCT device_eui FROM ${this.dbTable}`;
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
         const euis = [];
         rows.forEach(row => euis.push(row.Data[0].ScalarValue));
+        console.log(euis);
         return euis;
+    }
+
+    async getDeviceMeasures(deviceEui: string): Promise<string[]> {
+        console.log("Getting device measures");
+        const queryRequest = `SELECT DISTINCT measure_name FROM ${this.dbTable} WHERE device_eui = '${deviceEui}'`;  
+        const queryResponse = await this.handleQuery(queryRequest);
+        const rows = queryResponse.Rows;
+        const measures = [];
+        rows.forEach(row => measures.push(row.Data[0].ScalarValue));
+        console.log(measures);
+        return measures;
+    }
+
+    async getDeviceTimes(deviceEui: string): Promise<TimeFilterDto> {
+        const queryMinTime = `SELECT time FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' ORDER BY time ASC LIMIT 1`;  
+        const queryMaxTime = `SELECT time FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' ORDER BY time DESC LIMIT 1`;
+        const responseMin = await this.handleQuery(queryMinTime);
+        const responseMax = await this.handleQuery(queryMaxTime);;
+        const minTime = responseMin.Rows[0].Data[0].ScalarValue;
+        const maxTime = responseMax.Rows[0].Data[0].ScalarValue;
+        const timefilterDto = {
+            min: minTime,
+            max: maxTime,
+        }
+        return timefilterDto;
     }
 };
