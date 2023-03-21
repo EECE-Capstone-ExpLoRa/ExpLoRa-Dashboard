@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { TimeFilterDto } from "./timestream.dto";
 import { TimestreamService } from "./timestream.service";
 
 @Controller('timestream')
@@ -7,23 +8,32 @@ import { TimestreamService } from "./timestream.service";
 export class TimestreamController {
     constructor(private readonly timestreamService: TimestreamService) {}
 
-    @Get()
-    async getTableData() {
-        return await this.timestreamService.getAllData();
-    }
-
     @Get('/euis')
     async getEuis() {
+        // NOTE: Should only use for testing, probably shouldn't give user access to all EUIs
         return await this.timestreamService.getEuis();
     }
 
-    @Get('/:deviceEui/accelerations')
-    async getAccelerations(@Param('deviceEui') eui: string) {
-        return await this.timestreamService.getAllAccelerations(eui);
+    @Get(':deviceEui/measures')
+    async getDeviceMeasures(@Param('deviceEui') eui: string) {
+        return await this.timestreamService.getDeviceMeasures(eui);
     }
 
-    @Get(':measureName/:deviceEui')
-    async getDeviceYaw(@Param('measureName') measure: string, @Param('deviceEui') eui: string) {
-        return await this.timestreamService.queryBuilder(measure, eui);
+    @Get(':deviceEui/time')
+    async getDeviceTime(@Param('deviceEui') eui: string) {
+        return await this.timestreamService.getDeviceTimes(eui);
+    }
+
+    @Get(':deviceEui/accelerations')
+    async getAccelerations(@Param('deviceEui') eui: string) {
+        return await this.timestreamService.getAllAccelerations(eui); 
+    }
+
+    @Get(':deviceEui/:measureName')
+    async getDeviceData(
+        @Param('measureName') measure: string, 
+        @Param('deviceEui') eui: string,
+        @Body() timefilterDto: TimeFilterDto) {
+            return await this.timestreamService.getDeviceData(measure, eui, timefilterDto);
     }
 }
