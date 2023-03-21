@@ -42,7 +42,6 @@ export class TimestreamService {
             const data = row.Data;
             const timestamp = data[0].ScalarValue;
             const value = data[1].ScalarValue;
-            // console.log(Date.parse(value));
             const newDate = Math.floor(Date.parse(timestamp.split('.')[0])/1000);
             res.push({timestamp: newDate, value: value});
 
