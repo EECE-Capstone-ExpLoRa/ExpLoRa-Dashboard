@@ -10,25 +10,25 @@ const recent_date_range = {
 }
 
 export const getAcceleration = async(deviceEui: string) => {
-  const res = await timestreamApi.get(`/timestream/Acceleration/${deviceEui}`, {params: recent_date_range})
+  const res = await timestreamApi.get(`/timestream/${deviceEui}/Acceleration`, {data: recent_date_range})
 
   return res.data;
 }
 
 export const getAccelerationX = async (deviceEui: string) => {
-  const res = await timestreamApi.get(`/timestream/Acceleration%20X/${deviceEui}`, {params: recent_date_range})
+  const res = await timestreamApi.get(`/timestream/${deviceEui}/Acceleration%20X`, {data: recent_date_range})
 
   return res.data;
 }
 
 export const getAccelerationY = async (deviceEui: string) => {
-  const res = await timestreamApi.get(`/timestream/Acceleration%20Y/${deviceEui}`)
+  const res = await timestreamApi.get(`/timestream/${deviceEui}/Acceleration%20Y`, {data: recent_date_range})
 
   return res.data;
 }
 
 export const getAccelerationZ = async (deviceEui: string) => {
-  const res = await timestreamApi.get(`/timestream/Acceleration%20Z/${deviceEui}`)
+  const res = await timestreamApi.get(`/timestream/${deviceEui}/Acceleration%20Z`, {data: recent_date_range})
 
   return res.data;
 }
