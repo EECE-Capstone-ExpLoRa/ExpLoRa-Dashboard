@@ -11,7 +11,7 @@ import {
   Line
 } from 'recharts';
 import moment from 'moment'
-import { getAccelerationX, getAccelerationY, getAccelerationZ} from '../../services/timestream.service';
+import { getAcceleration, getAccelerationX, getAccelerationY, getAccelerationZ} from '../../services/timestream.service';
 
 const chartData = [
   { timestamp: 1578930642, value: 14 },
@@ -131,10 +131,10 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
   const [accelerationXData, setAccelerationXData] = useState([])
   const [accelerationYData, setAccelerationYData] = useState([])
   const [accelerationZData, setAccelerationZData] = useState([])
+  const [accelerationData, setAccelerationData] = useState([])
 
   useEffect(() => {
     getAccelerationX("00-80-00-00-04-05-b6-b1").then((res) => {  
-      console.log(res)    
       setAccelerationXData(res)
     })
     getAccelerationY("00-80-00-00-04-05-b6-b1").then((res) => {      
@@ -143,11 +143,16 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
     getAccelerationZ("00-80-00-00-04-05-b6-b1").then((res) => {      
       setAccelerationZData(res)
     })
+    getAcceleration("00-80-00-00-04-05-b6-b1").then((res) => {
+      setAccelerationData(res)
+
+      console.log(JSON.stringify(accelerationData))
+
+    })
 
   }, [])  
 
   const getAccelerationData = () => {
-    console.log(accelerationDir)
     switch(accelerationDir) {
       case "x": 
         return accelerationXData;
@@ -159,7 +164,9 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
         return accelerationZData;
 
       case "all":
-        return [];
+        console.log(accelerationData)
+        return accelerationData;
+
 
       default: 
         return [];
@@ -191,9 +198,9 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
         { accelerationDir !== "all" &&
           <Line type="monotone" dataKey="value" stroke="#25386A" activeDot={{ r: 8 }} />
         }
-        <Line type="monotone" dataKey="ax" stroke="#25386A" activeDot={{ r: 8 }} />
-        <Line type="monotone" dataKey="ay" stroke="#70A8B7" />
-        <Line type="monotone" dataKey="az" stroke="#25386A" />
+        <Line type="monotone" dataKey="AccelerationX" stroke="#25386A" activeDot={{ r: 8 }} />
+        <Line type="monotone" dataKey="AccelerationY" stroke="#70A8B7" />
+        <Line type="monotone" dataKey="AccelerationZ" stroke="#25386A" />
       </LineChart>
     </ResponsiveContainer>
   );

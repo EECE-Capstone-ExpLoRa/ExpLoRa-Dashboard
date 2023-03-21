@@ -10,7 +10,7 @@ const recent_date_range = {
 }
 
 export const getAcceleration = async(deviceEui: string) => {
-  const res = await timestreamApi.get(`/timestream/${deviceEui}/Acceleration`, {data: recent_date_range})
+  const res = await timestreamApi.get(`/timestream/${deviceEui}/accelerations`)
 
   return res.data;
 }
