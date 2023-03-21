@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Query, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { TimeFilterDto } from "./timestream.dto";
+import { FilterDto } from "./timestream.dto";
 import { TimestreamService } from "./timestream.service";
 
 @Controller('timestream')
@@ -33,7 +33,7 @@ export class TimestreamController {
     async getDeviceData(
         @Param('measureName') measure: string, 
         @Param('deviceEui') eui: string,
-        @Body() timefilterDto: TimeFilterDto) {
-            return await this.timestreamService.getDeviceData(measure, eui, timefilterDto);
+        @Query() filterDto: FilterDto) {
+        return await this.timestreamService.getDeviceData(measure, eui, filterDto);
     }
 }
