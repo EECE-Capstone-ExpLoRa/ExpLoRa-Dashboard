@@ -24,6 +24,7 @@ export class TimestreamService {
 
     async queryBuilder(measureName: string, deviceEui: string) {
         let measureType;
+        
         switch(measureName) {
             case 'time':
                 measureType = 'varchar';
@@ -36,10 +37,10 @@ export class TimestreamService {
         const queryRequest: string = `SELECT time, measure_value::bigint FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' AND measure_name = '${measureName}' ORDER BY time ASC`;
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
-        const res = []
+        const res = [];
         rows.forEach((row) => {
             const data = row.Data;
-            res.push({timestamp: data[0].ScalarValue, value: data[1].ScalarValue})
+            res.push({timestamp: data[0].ScalarValue, value: data[1].ScalarValue});
 
         });
         console.log(res);
