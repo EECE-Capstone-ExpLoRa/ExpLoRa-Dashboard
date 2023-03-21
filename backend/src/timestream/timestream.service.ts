@@ -92,7 +92,7 @@ export class TimestreamService {
             });
             res.push(vals);
         }
-        console.log(res);
+
         return res;
     }
 
@@ -118,11 +118,11 @@ export class TimestreamService {
         const rows = queryResponse.Rows;
         const euis = [];
         rows.forEach(row => euis.push(row.Data[0].ScalarValue));
+
         return euis;
     }
 
     async getDeviceMeasures(deviceEui: string): Promise<string[]> {
-        console.log("Getting device measures");
         const queryRequest = `SELECT DISTINCT measure_name FROM ${this.dbTable} WHERE device_eui = '${deviceEui}'`;  
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
