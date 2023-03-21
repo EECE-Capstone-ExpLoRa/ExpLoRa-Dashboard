@@ -63,6 +63,7 @@ export class TimestreamService {
             res.push({timestamp: unixTime, value: value});
 
         });
+        
         return res;
     }
 
