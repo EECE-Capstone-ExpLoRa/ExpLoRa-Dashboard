@@ -4,15 +4,40 @@ import { login } from "../services/user.service";
 import { loginUserObject } from "../utils/loginUser.dto";
 import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
+import exploraApi from "../services/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const LogIn = () => {
-  console.log("Render")
   const toast = useToast();
-
-  // const { isError, isSuccess, isLoading, data, error } = useQuery(
-
-  // )
-
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
+  //logs the user in using the credentials, if successfully signed in, add the user's auth token to header and takes them to logged in landing page, else resets form and says invalid login
+  const loginUserMutation = useMutation({
+    mutationFn: login,
+    onSuccess: async (data) => {
+      toast({
+        title: 'Logged In',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      exploraApi.defaults.headers.common.Authorization = `bearer ${data.access_token}`; 
+      queryClient.refetchQueries({queryKey: ['currentUser']});
+      //onSuccess we might also want to invalidate the userQuery to force refetch?
+      // what if here we set the user in a state and then in the navbar we render different navBars based on if there's a user or not
+      navigate('/register'); //navigate to User screen?
+    },
+    onError: () => {
+      toast({
+        title: 'Incorrect username or password.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  })
   
   return (
     <Formik
@@ -22,20 +47,11 @@ const LogIn = () => {
       password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters long')
     })}
     onSubmit={async (values, action) => {
-      console.log('Log in submit has been called');
-      toast({
-        title: 'Invalid username or password',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
       const user: loginUserObject = {
         username: values.username,
         password: values.password,
       };
-      alert(JSON.stringify(user, null, 2));
-      const loginRes = await login(user);
-      console.log(`Response is: ${loginRes}`);
+      loginUserMutation.mutate(user);
       action.resetForm();
     }}
     >

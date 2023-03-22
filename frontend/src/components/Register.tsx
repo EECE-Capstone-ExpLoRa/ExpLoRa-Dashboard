@@ -47,14 +47,12 @@ const Register = () => {
       confirmPassword: Yup.string().oneOf([Yup.ref('password'), undefined], 'Passwords must match').required('Please Confirm Password')
     })}
     onSubmit={async (values, action) => {
-      console.log('Sign up submit has been called');
       let newUser: createUserObject = {
         email: values.email,
         username: values.username,
         password: values.password,
       };
       if (values.deviceEui.trim() !== "") newUser.deviceEui = values.deviceEui;
-      alert(JSON.stringify(newUser, null, 2));
       registerUserMutation.mutate(newUser);
       action.resetForm();
     }}>
