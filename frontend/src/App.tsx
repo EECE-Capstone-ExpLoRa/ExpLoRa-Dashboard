@@ -7,6 +7,7 @@ import LogIn from './components/LogIn';
 import Register from './components/Register';
 import theme from './utils/theme';
 import NoMatch from './components/NoMatch';
+import NavBar from './components/NavBar';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         height: '100vh'
       }}> */}
         <Router>
+        <NavBar/>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />

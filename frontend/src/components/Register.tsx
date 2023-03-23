@@ -6,7 +6,7 @@ import {
   VStack,
   useToast,
 } from '@chakra-ui/react'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Formik } from 'formik';
 import { createUserObject } from '../utils/createUser.dto';
 import { register } from '../services/user.service';
@@ -17,6 +17,8 @@ import { useMutation } from '@tanstack/react-query';
 const Register = () => {
   const toast = useToast();
   const mailFormat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+  const navigate = useNavigate();
+
   const registerUserMutation = useMutation({
     mutationFn: register,
     onSuccess: () => {
@@ -26,6 +28,7 @@ const Register = () => {
         duration: 3000,
         isClosable: true,
       });
+      navigate('/signin');
     },
     onError: () => {
       toast({
