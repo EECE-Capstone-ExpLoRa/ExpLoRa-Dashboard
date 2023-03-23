@@ -58,6 +58,5 @@ export class AppController {
     const decodedJwt: any = this.jwtService.decode(jwt);
     const expiresSeconds = new Date(decodedJwt.exp * 1000);
     await this.cacheManager.set(jwt, jwt, expiresSeconds.getMilliseconds());
-    console.log(await this.cacheManager.store.keys());
   }
 }

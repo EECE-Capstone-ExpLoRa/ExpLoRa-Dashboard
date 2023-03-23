@@ -4,15 +4,15 @@ import { login } from "../services/user.service";
 import { loginUserObject } from "../utils/loginUser.dto";
 import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
+import { Link } from "react-router-dom";
 import exploraApi from "../services/api";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { queryClient } from "..";
 
 const LogIn = () => {
   const toast = useToast();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  
+  const navigate = useNavigate();  
   //logs the user in using the credentials, if successfully signed in, add the user's auth token to header and takes them to logged in landing page, else resets form and says invalid login
   const loginUserMutation = useMutation({
     mutationFn: login,
@@ -23,11 +23,9 @@ const LogIn = () => {
         duration: 3000,
         isClosable: true,
       });
-      exploraApi.defaults.headers.common.Authorization = `bearer ${data.access_token}`; 
+      exploraApi.defaults.headers.common.Authorization = `Bearer ${data.access_token}`; 
       queryClient.refetchQueries({queryKey: ['currentUser']});
-      //onSuccess we might also want to invalidate the userQuery to force refetch?
-      // what if here we set the user in a state and then in the navbar we render different navBars based on if there's a user or not
-      navigate('/register'); //navigate to User screen?
+      navigate('/dashboard'); //navigate to User screen?
     },
     onError: () => {
       toast({
@@ -63,6 +61,7 @@ const LogIn = () => {
                  <FormInputField label='Username' required={true} id='username' name='username' type='text' variant='filled'/>
                  <FormInputField label='Password' required={true} id='password' name='password' type='password' variant='filled'/>
                  <Button type="submit" colorScheme="test2" width="full" color='white'>Log In</Button>
+                 <Link to="/register">Don't have an account yet?</Link>
                </VStack>
              </form>
             </Box>

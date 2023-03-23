@@ -1,7 +1,9 @@
-import { Flex, Heading } from "@chakra-ui/react";
+import { Box, Flex, Heading, HStack, Image } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { fetchCurrentUser } from "../services/user.service";
+import { queryClient } from "..";
+import exploraApi from "../services/api";
+import { fetchCurrentUser, logout } from "../services/user.service";
 import SignInOutButton from "./SignInOutButton";
 
 const NavBar = () => {
@@ -17,10 +19,11 @@ const NavBar = () => {
       <Flex direction='row' justifyContent='space-between' alignItems='center'>
       <Flex>
         <Link to="/">
-          <Heading as='h2' size='3xl' margin='12px' textColor='test.100'>ExploRa</Heading>
+          <Flex paddingX={6} marginY={6}>
+              <Image src="/ExpLoRa@2x.png" height={7}/>
+            </Flex>
         </Link>
       </Flex>
-
       <Flex>
           <SignInOutButton linkTo='/signin' buttonText='Sign In'/>
           <SignInOutButton linkTo='/register' buttonText='Register'/>
@@ -34,8 +37,38 @@ const NavBar = () => {
       <div>Loading...</div>
     );
   }
+
+  const handleLogout = async () => {
+    await logout();
+    exploraApi.defaults.headers.common.Authorization = undefined; 
+    queryClient.refetchQueries({queryKey: ['currentUser']});
+  }
   
-  return <></>
+  return (
+    <Flex direction='row' justifyContent='space-between' alignItems='center'>
+    <Flex>
+      <Link to="/dashboard">
+        <Flex paddingX={6} marginY={6}>
+            <Image src="/ExpLoRa@2x.png" height={7}/>
+        </Flex>
+      </Link>
+    </Flex>
+    
+    <Flex>
+      <Link to="/profile">
+        <Flex alignItems='center' paddingRight='12px'>
+          <Image src='/profileIcon.png' padding='5px' height={7}/> My Profile
+        </Flex>
+      </Link>
+
+      <Link to="/" onClick={handleLogout}>
+        <Flex alignItems='center' paddingLeft='12px'>
+          Logout <Image src='/logout-svgrepo-com.svg' padding='5px' height={7}/>
+        </Flex>
+      </Link>
+    </Flex>
+  </Flex>
+  )
     
 };
 

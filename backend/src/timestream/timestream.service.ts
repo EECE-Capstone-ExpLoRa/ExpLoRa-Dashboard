@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { TimestreamQueryClient, QueryCommand, QueryCommandOutput, QueryCommandInput } from "@aws-sdk/client-timestream-query";
-import { TimeFilterDto } from "./timestream.dto";
+import { FilterDto } from "./timestream.dto";
 
 type AccelerationsResponse = {
     timestamp: number,
@@ -30,7 +30,7 @@ export class TimestreamService {
         }
     }
 
-    async getDeviceData(measureName: string, deviceEui: string, timefilterDto: TimeFilterDto) {
+    async getDeviceData(measureName: string, deviceEui: string, filterDto: FilterDto) {
         let measureType;
         switch(measureName) {
             case 'time':
@@ -43,14 +43,15 @@ export class TimestreamService {
 
         let queryRequest = `SELECT time, measure_value::${measureType} FROM ${this.dbTable} 
             WHERE device_eui = '${deviceEui}' AND measure_name = '${measureName}'`;
-        if (timefilterDto.min) {
-            console.log("concating")
-            queryRequest += ` AND time >= '${timefilterDto.min}'`;
+        if (filterDto) {
+           if (filterDto.minTime) {
+                queryRequest += ` AND time >= '${this.unixToDatetime(parseInt(filterDto.minTime))}'`;
+            }
+            if (filterDto.maxTime) {
+                queryRequest += ` AND time <= '${this.unixToDatetime(parseInt(filterDto.maxTime))}'`;
+            } 
         }
-        if (timefilterDto.max) {
-            queryRequest += ` AND time <= '${timefilterDto.max}'`;
-        }
-
+        
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
         const res = [];
@@ -58,11 +59,10 @@ export class TimestreamService {
             const data = row.Data;
             const timestamp = data[0].ScalarValue;
             const value = parseInt(data[1].ScalarValue);
-            const newDate = Math.floor(Date.parse(timestamp.split('.')[0])/1000);
-            res.push({timestamp: newDate, value: value});
+            const unixTime = this.datetimeToUnix(timestamp);
+            res.push({timestamp: unixTime, value: value});
 
         });
-        console.log(res);
         return res;
     }
 
@@ -92,7 +92,7 @@ export class TimestreamService {
             });
             res.push(vals);
         }
-        console.log(res);
+
         return res;
     }
 
@@ -118,32 +118,47 @@ export class TimestreamService {
         const rows = queryResponse.Rows;
         const euis = [];
         rows.forEach(row => euis.push(row.Data[0].ScalarValue));
-        console.log(euis);
+
         return euis;
     }
 
     async getDeviceMeasures(deviceEui: string): Promise<string[]> {
-        console.log("Getting device measures");
         const queryRequest = `SELECT DISTINCT measure_name FROM ${this.dbTable} WHERE device_eui = '${deviceEui}'`;  
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
         const measures = [];
         rows.forEach(row => measures.push(row.Data[0].ScalarValue));
-        console.log(measures);
         return measures;
     }
 
-    async getDeviceTimes(deviceEui: string): Promise<TimeFilterDto> {
+    async getDeviceTimes(deviceEui: string): Promise<FilterDto> {
         const queryMinTime = `SELECT time FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' ORDER BY time ASC LIMIT 1`;  
         const queryMaxTime = `SELECT time FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' ORDER BY time DESC LIMIT 1`;
         const responseMin = await this.handleQuery(queryMinTime);
         const responseMax = await this.handleQuery(queryMaxTime);;
-        const minTime = responseMin.Rows[0].Data[0].ScalarValue;
-        const maxTime = responseMax.Rows[0].Data[0].ScalarValue;
-        const timefilterDto = {
-            min: minTime,
-            max: maxTime,
+        const minTime = this.datetimeToUnix(responseMin.Rows[0].Data[0].ScalarValue);
+        const maxTime = this.datetimeToUnix(responseMax.Rows[0].Data[0].ScalarValue);
+        const filterDto: FilterDto = {
+            minTime: minTime.toString(),
+            maxTime: maxTime.toString()
         }
-        return timefilterDto;
+        return filterDto;
     }
-};
+
+    /**
+     * Converts the unix millisecond timestamp from the datetime string.
+     */
+    private unixToDatetime(unixTime: number): string {
+        const datetime = new Date(unixTime);
+        const isoString = datetime.toISOString();
+        return isoString.replace('T', ' ').replace('Z', '');
+    }
+
+    /**
+     * Converts the datetime string to a unix millisecond timestamp.
+     */
+    private datetimeToUnix(datetime: string): number {
+        const formatedTime = datetime.replace(' ', 'T').substring(0, 23) + 'Z';
+        return Date.parse(formatedTime);
+    }
+}

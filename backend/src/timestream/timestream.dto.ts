@@ -1,19 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString } from "class-validator";
+import { IsNumber, IsNumberString, IsOptional } from "class-validator";
 
 
-export class TimeFilterDto {
-    @ApiProperty({
-        type: String,
-        description: "The minimum time to query data at"
-    })
-    @IsDateString()
-    min?: string;
+export class FilterDto {
+    @IsNumberString()
+    @IsOptional()
+    minTime: string;
 
-    @ApiProperty({
-        type: String,
-        description: "The maximum time to query data at"
-    })
-    @IsDateString()
-    max?: string;
+    @IsNumberString()
+    @IsOptional()
+    maxTime: string;
 }
