@@ -1,4 +1,3 @@
-import React from 'react'
 import {
   Button,
   Flex,
@@ -6,7 +5,7 @@ import {
   VStack,
   useToast,
 } from '@chakra-ui/react'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Formik } from 'formik';
 import { createUserObject } from '../utils/createUser.dto';
 import { register } from '../services/user.service';
@@ -16,6 +15,7 @@ import { useMutation } from '@tanstack/react-query';
 
 const Register = () => {
   const toast = useToast();
+  const navigate = useNavigate()
   const mailFormat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
   const registerUserMutation = useMutation({
     mutationFn: register,
@@ -47,7 +47,6 @@ const Register = () => {
       confirmPassword: Yup.string().oneOf([Yup.ref('password'), undefined], 'Passwords must match').required('Please Confirm Password')
     })}
     onSubmit={async (values, action) => {
-      console.log('Sign up submit has been called');
       let newUser: createUserObject = {
         email: values.email,
         username: values.username,
@@ -57,6 +56,7 @@ const Register = () => {
       alert(JSON.stringify(newUser, null, 2));
       registerUserMutation.mutate(newUser);
       action.resetForm();
+      navigate("/dashboard")
     }}>
       {formik => (
       <Flex bg='test2.100' align='center' justify='center' h='100vh'>

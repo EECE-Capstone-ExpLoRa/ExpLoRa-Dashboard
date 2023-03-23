@@ -5,16 +5,12 @@ import { loginUserObject } from "../utils/loginUser.dto";
 import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const LogIn = () => {
-  console.log("Render")
   const toast = useToast();
 
-  // const { isError, isSuccess, isLoading, data, error } = useQuery(
-
-  // )
-
-  
+  const navigate = useNavigate()
   return (
     <Formik
     initialValues={{username: '',password: '',}}
@@ -23,7 +19,6 @@ const LogIn = () => {
       password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters long')
     })}
     onSubmit={async (values, action) => {
-      console.log('Log in submit has been called');
       toast({
         title: 'Invalid username or password',
         status: 'error',
@@ -36,8 +31,8 @@ const LogIn = () => {
       };
       alert(JSON.stringify(user, null, 2));
       const loginRes = await login(user);
-      console.log(`Response is: ${loginRes}`);
       action.resetForm();
+      navigate('/dashboard')
     }}
     >
       {formik => (

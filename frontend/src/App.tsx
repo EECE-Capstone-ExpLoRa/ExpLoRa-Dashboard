@@ -7,6 +7,7 @@ import LogIn from './components/LogIn';
 import Register from './components/Register';
 import theme from './utils/theme';
 import NoMatch from './components/NoMatch';
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/signin" element={<LogIn />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="*" element={<NoMatch />} />
           </Routes>
         </Router>
