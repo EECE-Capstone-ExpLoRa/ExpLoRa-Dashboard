@@ -4,11 +4,8 @@ import { login } from "../services/user.service";
 import { loginUserObject } from "../utils/loginUser.dto";
 import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
-<<<<<<< HEAD
 import { Link } from "react-router-dom";
-=======
 import { useNavigate } from "react-router-dom";
->>>>>>> 7281c19 (dashboard, maps, and charts setup)
 
 const LogIn = () => {
   const toast = useToast();
