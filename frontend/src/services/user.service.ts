@@ -18,8 +18,6 @@ export const login = async(user: loginUserObject) => {
     return accessToken;
 }
 
-// export const logout = async() => {
-//     const res = await exploraApi.get('/auth/logout')
-// }
+//TODO: implement logout service
 
 export default exploraApi;

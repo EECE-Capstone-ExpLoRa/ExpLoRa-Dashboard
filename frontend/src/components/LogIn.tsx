@@ -10,10 +10,6 @@ import { useNavigate } from "react-router-dom";
 const LogIn = () => {
   const toast = useToast();
 
-  // const { isError, isSuccess, isLoading, data, error } = useQuery(
-
-  // )
-
   const navigate = useNavigate()
   return (
     <Formik

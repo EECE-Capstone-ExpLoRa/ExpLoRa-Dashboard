@@ -189,9 +189,6 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
           accelerationDir === "all" && 
           <Legend />
         }
-        {
-        // renderDataLines()
-        }
         { accelerationDir !== "all" &&
           <Line type="monotone" dataKey="value" stroke="#25386A" activeDot={{ r: 8 }} />
         }
