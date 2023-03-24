@@ -15,7 +15,7 @@ import { useMutation } from '@tanstack/react-query';
 
 const Register = () => {
   const toast = useToast();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const mailFormat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
   const registerUserMutation = useMutation({

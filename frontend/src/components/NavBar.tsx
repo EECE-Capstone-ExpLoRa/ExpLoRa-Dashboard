@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, HStack, Image } from "@chakra-ui/react";
+import { Flex, Image } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { queryClient } from "..";
