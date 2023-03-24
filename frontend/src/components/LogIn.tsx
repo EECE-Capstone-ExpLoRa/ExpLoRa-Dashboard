@@ -16,7 +16,7 @@ const LogIn = () => {
   //logs the user in using the credentials, if successfully signed in, add the user's auth token to header and takes them to logged in landing page, else resets form and says invalid login
   const loginUserMutation = useMutation({
     mutationFn: login,
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       toast({
         title: 'Logged In',
         status: 'success',
@@ -44,7 +44,7 @@ const LogIn = () => {
       username: Yup.string().required('Username is required').min(6, 'Username must be at least 6 characters long'),
       password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters long')
     })}
-    onSubmit={async (values, action) => {
+    onSubmit={(values, action) => {
       const user: loginUserObject = {
         username: values.username,
         password: values.password,
