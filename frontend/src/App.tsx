@@ -7,28 +7,24 @@ import LogIn from './components/LogIn';
 import Register from './components/Register';
 import theme from './utils/theme';
 import NoMatch from './components/NoMatch';
-import Dashboard from './components/Dashboard';
+import Dashboard from './components/dashboard/Dashboard';
+import NavBar from './components/NavBar';
+import Profile from './components/Profile';
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
-      {/* <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#F8B195',
-        height: '100vh'
-      }}> */}
         <Router>
+          <NavBar/>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/signin" element={<LogIn />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NoMatch />} />
           </Routes>
         </Router>
-      {/* </div> */}
     </ChakraProvider>
   );
 }

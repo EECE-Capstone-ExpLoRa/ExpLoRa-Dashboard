@@ -5,12 +5,38 @@ import { loginUserObject } from "../utils/loginUser.dto";
 import { FormInputField } from "./FormInputField";
 import * as Yup from 'yup';
 import { Link } from "react-router-dom";
+import exploraApi from "../services/api";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { queryClient } from "..";
 
 const LogIn = () => {
   const toast = useToast();
-
-  const navigate = useNavigate()
+  const navigate = useNavigate();  
+  //logs the user in using the credentials, if successfully signed in, add the user's auth token to header and takes them to logged in landing page, else resets form and says invalid login
+  const loginUserMutation = useMutation({
+    mutationFn: login,
+    onSuccess: async (data) => {
+      toast({
+        title: 'Logged In',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+      exploraApi.defaults.headers.common.Authorization = `Bearer ${data.access_token}`; 
+      queryClient.refetchQueries({queryKey: ['currentUser']});
+      navigate('/dashboard'); //navigate to User screen?
+    },
+    onError: () => {
+      toast({
+        title: 'Incorrect username or password.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  })
+  
   return (
     <Formik
     initialValues={{username: '',password: '',}}
@@ -19,20 +45,12 @@ const LogIn = () => {
       password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters long')
     })}
     onSubmit={async (values, action) => {
-      toast({
-        title: 'Invalid username or password',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      })
       const user: loginUserObject = {
         username: values.username,
         password: values.password,
       };
-      alert(JSON.stringify(user, null, 2));
-      const loginRes = await login(user);
+      loginUserMutation.mutate(user);
       action.resetForm();
-      navigate('/dashboard')
     }}
     >
       {formik => (

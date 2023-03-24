@@ -81,7 +81,6 @@ export class UserController {
   @ApiBadRequestResponse({description: "A user with the provided username already exists"})
   @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
   public async createUser(@Body() createUserDto: CreateUserDto) {
-    console.log(createUserDto);
     try {
       const userId = await this.userService.createUser(createUserDto);
       return userId;

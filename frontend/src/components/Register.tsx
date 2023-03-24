@@ -17,6 +17,7 @@ const Register = () => {
   const toast = useToast();
   const navigate = useNavigate()
   const mailFormat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
   const registerUserMutation = useMutation({
     mutationFn: register,
     onSuccess: () => {
@@ -26,6 +27,7 @@ const Register = () => {
         duration: 3000,
         isClosable: true,
       });
+      navigate('/signin'); //might change to go to dashboard
     },
     onError: () => {
       toast({
@@ -53,10 +55,8 @@ const Register = () => {
         password: values.password,
       };
       if (values.deviceEui.trim() !== "") newUser.deviceEui = values.deviceEui;
-      alert(JSON.stringify(newUser, null, 2));
       registerUserMutation.mutate(newUser);
       action.resetForm();
-      navigate("/dashboard")
     }}>
       {formik => (
       <Flex bg='test2.100' align='center' justify='center' h='100vh'>
