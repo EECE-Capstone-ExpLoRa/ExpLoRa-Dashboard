@@ -10,7 +10,7 @@ export class TimestreamGateway implements OnModuleInit {
   server: Server;
 
   onModuleInit() {
-    this.server.on('connection', (socket) => {
+    this.server.on('connection', (_socket) => {
       setInterval(() => {
         osu.cpu.usage().then(cpuPercent => {
           this.server.emit('cpu', {
@@ -24,7 +24,6 @@ export class TimestreamGateway implements OnModuleInit {
 
   @SubscribeMessage('timestream') 
   handleMessage(@MessageBody() message: string): void {
-    console.log(message)
     this.server.emit('message', message)
   }
 }
