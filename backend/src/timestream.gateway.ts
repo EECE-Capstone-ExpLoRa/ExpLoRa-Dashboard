@@ -2,6 +2,7 @@ import { OnModuleInit } from "@nestjs/common";
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io"
 // var osu = require('node-os-utils')
+// let tick = 0;
 
 @WebSocketGateway({namespace: '/socket/timestream'})
 export class TimestreamGateway implements OnModuleInit {
