@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import ExpandableCard from '../Card';
+import ExpandableCard from '../ExpandableCard';
 
 const data = [
   {

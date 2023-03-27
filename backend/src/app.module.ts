@@ -13,6 +13,7 @@ import { DatabaseConfigService } from './config/database.config';
 import { BlacklistMiddleware } from './utils/blacklist.middleware';
 import { UserController } from './user/user.controller';
 import { DeviceController } from './devices/device.controller';
+import { TimestreamGateway } from './timestream.gateway';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { DeviceController } from './devices/device.controller';
     AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TimestreamGateway],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

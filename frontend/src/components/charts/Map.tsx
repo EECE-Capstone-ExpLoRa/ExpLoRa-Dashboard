@@ -1,15 +1,15 @@
 import { GoogleMap, MarkerF, LoadScript } from '@react-google-maps/api';
 import { useEffect, useState } from 'react';
-import Card from '../Card';
-
-const containerStyle = {
-  height: '610px',
-  width: 'full'
-};
+import ExpandableCard from '../ExpandableCard';
 
 const Map = () => {
   const [lat, setLat] = useState(0)
   const [lng, setLng] = useState(0)
+
+  const containerStyle = {
+    height: '225px',
+    width: 'full'
+  };
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -21,7 +21,7 @@ const Map = () => {
   }, [])
 
   return (
-    <Card title="Location" modalSize="full">
+    <ExpandableCard title="Location" modalSize="full">
     { window.google === undefined ?
     <LoadScript
       googleMapsApiKey="AIzaSyAjXb38TAKTaGtD9XypfgFjsVqVnTV-vf8"
@@ -46,7 +46,7 @@ const Map = () => {
 
       <MarkerF position={{lat, lng}}/>
     </GoogleMap> }
-  </Card>
+  </ExpandableCard>
   );
 }
 
