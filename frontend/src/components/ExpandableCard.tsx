@@ -1,14 +1,14 @@
 import { Box, Button, Flex, HStack, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, Text, useDisclosure } from "@chakra-ui/react";
 import { useState } from "react";
 
-const ExpandableCard=({children, isOpen, title, modalSize="xl"}: any) => {
+const ExpandableCard=({children, title, modalSize="xl"}: any) => {
   const [open, setOpen] = useState(true)
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure()
 
 
   const expandableContent = () => {
     return (
-      <Box width="full" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
+      <Box width="full" height="full" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
         {children}
       </Box>
     );
