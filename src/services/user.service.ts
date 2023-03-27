@@ -3,7 +3,7 @@ import { createUserObject } from "../utils/createUser.dto";
 import { loginUserObject } from "../utils/loginUser.dto";
 
 const exploraApi = axios.create({
-    baseURL: 'http://exploraserver-env.eba-iumuejzk.us-east-1.elasticbeanstalk.com'
+    baseURL: 'http://exploraserver-env.eba-iumuejzk.us-east-1.elasticbeanstalk.com:8080'
 });
 
 export const register = async (newUser: createUserObject) => {
