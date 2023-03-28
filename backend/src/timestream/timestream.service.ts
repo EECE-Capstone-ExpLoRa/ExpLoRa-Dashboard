@@ -67,8 +67,18 @@ export class TimestreamService {
         return res;
     }
 
-    async getAllAccelerations(deviceEui) {
-        const queryRequest: string = `SELECT time, measure_name, measure_value::bigint FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' AND (measure_name = 'Acceleration X' OR measure_name = 'Acceleration Y' OR measure_name = 'Acceleration Z') ORDER BY time ASC`;
+    async getAllAccelerations(deviceEui: string, filterDto: FilterDto) {
+        let queryRequest: string = `SELECT time, measure_name, measure_value::bigint FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' AND (measure_name = 'Acceleration X' OR measure_name = 'Acceleration Y' OR measure_name = 'Acceleration Z')`;
+        if (filterDto) {
+            if (filterDto.minTime) {
+                 queryRequest += ` AND time >= '${this.unixToDatetime(parseInt(filterDto.minTime))}'`;
+            }
+            
+             if (filterDto.maxTime) {
+                 queryRequest += ` AND time <= '${this.unixToDatetime(parseInt(filterDto.maxTime))}'`;
+             } 
+        }
+        queryRequest += `  ORDER BY time ASC`
         const queryResponse = await this.handleQuery(queryRequest);
         const rows = queryResponse.Rows;
         const res = [];
@@ -110,7 +120,6 @@ export class TimestreamService {
                 roll: [{timeStamp, value}...]
                 pitch: [{timeStamp, value}...]
                 yaw: [{timeStamp, value}...]
-
             */
 
     async getEuis() {

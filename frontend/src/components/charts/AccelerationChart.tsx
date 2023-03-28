@@ -127,6 +127,9 @@ const AccelerationCard = ({isOpen, modalSize="full"}: any) => {
   );
 }
 
+const minTimeQueryParam = 1672550827000;
+const maxTimeQueryParam = 1679891227000;
+
 export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) => {
   const [accelerationXData, setAccelerationXData] = useState([])
   const [accelerationYData, setAccelerationYData] = useState([])
@@ -134,17 +137,16 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
   const [accelerationData, setAccelerationData] = useState([])
 
   useEffect(() => {
-    getAccelerationX("00-80-00-00-04-05-b6-b1", 1234567899000, 1634567899000).then((res) => {
-      console.log(res)
+    getAccelerationX("00-80-00-00-04-05-b6-b1", minTimeQueryParam, maxTimeQueryParam).then((res) => {
       setAccelerationXData(res)
     })
-    getAccelerationY("00-80-00-00-04-05-b6-b1", 1234567899000, 1634567899000).then((res) => {      
+    getAccelerationY("00-80-00-00-04-05-b6-b1", minTimeQueryParam, maxTimeQueryParam).then((res) => {      
       setAccelerationYData(res)
     })
-    getAccelerationZ("00-80-00-00-04-05-b6-b1", 1234567899000, 1634567899000).then((res) => {      
+    getAccelerationZ("00-80-00-00-04-05-b6-b1", minTimeQueryParam, maxTimeQueryParam).then((res) => {      
       setAccelerationZData(res)
     })
-    getAcceleration("00-80-00-00-04-05-b6-b1").then((res) => {
+    getAcceleration("00-80-00-00-04-05-b6-b1", minTimeQueryParam, maxTimeQueryParam).then((res) => {
       setAccelerationData(res)
     })
 
@@ -162,7 +164,6 @@ export const AccelerationChart = ({accelerationDir}: {accelerationDir: string}) 
         return accelerationZData;
 
       case "all":
-        console.log(accelerationData)
         return accelerationData;
 
 
