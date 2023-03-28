@@ -1,34 +1,41 @@
-import { AddIcon } from "@chakra-ui/icons";
-import { Button, Flex, FormControl, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure, useToast } from "@chakra-ui/react"
+import { AddIcon, CheckIcon, DeleteIcon, EditIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { Box, Button, Flex, FormControl, 
+    FormLabel, HStack, IconButton, Input, 
+    Modal, ModalBody, ModalCloseButton, 
+    ModalContent, ModalFooter, ModalHeader, 
+    ModalOverlay, Select, Tooltip, useDisclosure, 
+    useToast, VStack } from "@chakra-ui/react"
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { queryClient } from "../..";
-import { fetchUserDevices, registerNewDevice } from "../../services/user.service";
+import { deleteDeviceFromUser, fetchUserDevices, registerNewDevice, updateUserDevices } from "../../services/user.service";
+
+type updateDeviceType = {
+    nickname?: string,
+    type?: string
+}; 
 
 const DashboardFooter = () => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [deviceEui, setDeviceEui] = useState('');
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [deviceChanges, setdeviceChanges] = useState<Map<string, updateDeviceType>>(new Map<string, updateDeviceType>());
+    const addDevicesModal = useDisclosure();
+    const editDevicesModal = useDisclosure();
     const toast = useToast();
     const devices = useQuery({
         queryKey: ['userDevices'],
         queryFn: fetchUserDevices
     });
-    const handleDeviceEuiChange = (e: React.FormEvent<HTMLInputElement>) => {
-        setDeviceEui(e.currentTarget.value)
-    };
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        console.log(deviceEui);
-        if (deviceEui.trim() !== "") {
-            registerDeviceMutation.mutate(deviceEui)
-        }
-        setDeviceEui('');
-    };
     const registerDeviceMutation = useMutation({
         mutationFn: registerNewDevice,
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['userDevices']});
+            toast({
+                title: 'Device Registered',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+              });
         },
         onError: () => {
             toast({
@@ -39,9 +46,149 @@ const DashboardFooter = () => {
             });
           }
     });
+    const deleteDeviceMutation = useMutation({
+        mutationFn: deleteDeviceFromUser,
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['userDevices']});
+            toast({
+              title: 'Device sucessfully deleted',
+              status: 'success',
+              duration: 3000,
+              isClosable: true,
+            });
+        },
+        onError: () => {
+            toast({
+              title: 'Could not delete device',
+              status: 'error',
+              duration: 3000,
+              isClosable: true,
+            });
+          }
+    });
+    const updateDevicesMutation = useMutation({
+        mutationFn: updateUserDevices,
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['userDevices']});
+            toast({
+                title: 'Devices updated',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+              });
+        },
+        onError: () => {
+            toast({
+              title: 'Error updating devices',
+              status: 'error',
+              duration: 3000,
+              isClosable: true,
+            });
+          },
+    })
+    
+    const handleDeviceEuiChange = (e: React.FormEvent<HTMLInputElement>) => {
+        setDeviceEui(e.currentTarget.value);
+    };
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (deviceEui.trim() !== "") {
+            registerDeviceMutation.mutate(deviceEui)
+        }
+        setDeviceEui('');
+    };
+
+    const handleDeviceUpdates = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        updateDevicesMutation.mutate(deviceChanges);
+    };
+
+    const handleDeviceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>, deviceEui: string) => {
+        const newValue = e.target.value;
+        if (deviceChanges.has(deviceEui)) {
+            deviceChanges.set(deviceEui, {...deviceChanges.get(deviceEui), type: newValue});
+        }
+        else {
+            deviceChanges.set(deviceEui, {type: newValue});
+        }
+    };
+
+    const handleDeviceNameChange = (e: React.ChangeEvent<HTMLInputElement>, deviceEui: string) => {
+        const newValue = e.target.value;
+        if (deviceChanges.has(deviceEui)) {
+            deviceChanges.set(deviceEui, {...deviceChanges.get(deviceEui), nickname: newValue});
+        }
+        else {
+            deviceChanges.set(deviceEui, {nickname: newValue});
+        }
+    }
+    
+    if (devices.isLoading) {
+        return (<span>Loading...</span>)
+    }
+    
+    if (devices.isError) {
+        return (<span> An error occured </span>);
+    }
+    
+    const deviceButtons = devices.data.map((device, index) => {
+        return (
+        <Button 
+        key={device.device_eui} 
+        _active={{
+            borderBottom:`4px solid #3545a4`
+        }}
+        isActive={selectedIndex === index}
+        onClick={() => {
+            setSelectedIndex(index);
+        }}>
+            {device.nickname? device.nickname: device.device_eui} 
+        </Button>
+        );
+    });
+
+    const editableDevices = devices.data.map((device) => {
+        const placeHolder = (device.nickname && device.nickname.trim() !== "")? device.nickname: device.device_eui;
+        return (
+            <HStack key={device.device_eui}>
+                <Select 
+                placeholder="Device Type" 
+                icon={<HamburgerIcon />} 
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    handleDeviceTypeChange(e, device.device_eui);
+                }}
+                >
+                    <option value='rocket'>Rocket</option>
+                    <option value='drone'>Drone</option>
+                    <option value='car'>Car</option>
+                    <option value='other'>Other</option>
+                </Select>
+
+                <Input 
+                type='text'
+                placeholder={placeHolder} 
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleDeviceNameChange(e, device.device_eui);
+                }}
+                // borderColor='green'
+                // borderWidth='2px'
+                />
+                
+                <Tooltip hasArrow label='Delete device' aria-label="Tooltip to delete device">
+                    <IconButton 
+                    aria-label="Delete device" 
+                    icon={<DeleteIcon />} 
+                    colorScheme='red' 
+                    onClick={() => {
+                        deleteDeviceMutation.mutate(device.device_eui);
+                    }} />
+                </Tooltip>
+            </HStack>
+        )
+    });
 
     const addDeviceModal = (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={addDevicesModal.isOpen} onClose={addDevicesModal.onClose} motionPreset='slideInBottom' >
                 <ModalOverlay backdropFilter='blur(10px)'/>
                 <ModalContent>
                     <ModalHeader>Register a Device</ModalHeader>
@@ -58,45 +205,48 @@ const DashboardFooter = () => {
                         </form>
                     </ModalBody>
                     <ModalFooter>
-                        <Button onClick={onClose} type='submit' form='register-device-form'>Save</Button>
+                        <Button onClick={addDevicesModal.onClose} type='submit' form='register-device-form' colorScheme='green' >Submit</Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+    );
+
+    const editDeviceModal = (
+        <Modal isOpen={editDevicesModal.isOpen} onClose={() => {
+            setdeviceChanges(new Map<string, {[key: string]: string}>());
+            editDevicesModal.onClose();
+            }} motionPreset='slideInBottom' >
+                <ModalOverlay backdropFilter='blur(10px)'/>
+                <ModalContent>
+                    <ModalHeader>Edit Devices</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Box>
+                            <VStack>
+                                {editableDevices}
+                            </VStack>
+                        </Box>
+                    </ModalBody>
+                    <ModalFooter justifyContent='center'>
+                        <Button leftIcon={<CheckIcon />} colorScheme="green" onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                            handleDeviceUpdates(e);
+                            editDevicesModal.onClose();
+                        }} 
+                        > Update Devices </Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
     );
     
-    if (devices.isLoading) {
-        return (<span>Loading...</span>)
-    }
-    
-    if (devices.isError) {
-        //53, 69, 164
-        return (<span> An error occured </span>);
-    }
-    
-    const deviceButtons = devices.data.map((device, index) => {
-        return (
-        <Button 
-        key={device.device_eui} 
-       _active={{
-            borderBottom:`4px solid #3545a4`
-          }}
-        isActive={selectedIndex === index}
-        onClick={() => {
-            console.log('Button is selected');
-            console.log(selectedIndex, index);
-            setSelectedIndex(index);
-        }}>
-            {device.nickname? device.nickname: device.device_eui} 
-        </Button>
-        );
-    });
     return (
-        <Flex position='fixed' bottom='0' width='100%' margin='12px'>
+        <Flex position='fixed' bottom='0' width='100%' margin='12px' >
             {deviceButtons}
-            <Button leftIcon={<AddIcon/>} onClick={onOpen}>Add device</Button>
+            <Button leftIcon={<AddIcon/>} onClick={addDevicesModal.onOpen}>Add device</Button>
             {addDeviceModal}
+            <Button leftIcon={<EditIcon/>} onClick={editDevicesModal.onOpen} >Edit Devices</Button>
+            {editDeviceModal}
         </Flex>
-    )
+    );
 };
 
 export default DashboardFooter;

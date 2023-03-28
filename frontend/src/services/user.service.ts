@@ -1,3 +1,4 @@
+import axios from "axios";
 import { createUserObject } from "../utils/createUser.dto";
 import { deviceResponse } from "../utils/devices.dto";
 import { loginResponse } from "../utils/loginResponse.dto";
@@ -45,3 +46,42 @@ export const registerNewDevice =async (deviceEui: string) => {
     console.log(device);
     return device;
 };
+
+export const deleteDeviceFromUser = async (deviceEui: string) => {
+  const res = await exploraApi.delete(`/users/devices/${deviceEui}`);
+  const deletedDevice = res.data;
+  return deletedDevice;
+}
+
+export const updateUserDevices =async (devicesToUpdate:Map<string, {[key: string]: string}>) => {
+    type updateManyDevices = {
+        url: string,
+        body: {
+            nickname?: string,
+            type?: string
+        },
+    };
+    const endpointUrls: updateManyDevices[] = [];
+    const responses: any[] = []
+    devicesToUpdate.forEach((val, key) => {
+        console.log(key, val);
+        endpointUrls.push({
+            url: `/devices/${key}`,
+            body: {
+                nickname: val.nickname,
+                type: val.type
+                }
+            });
+    });
+    const axiosCalls = endpointUrls.map((endpoint) => {
+        return exploraApi.put(endpoint.url, endpoint.body);
+    });
+    
+    const res = await axios.all(axiosCalls);
+    try {
+        res.forEach((response) => responses.push(response.data));
+        return responses;
+    } catch(error) {
+        return error;
+    }
+}

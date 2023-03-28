@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Allow, IsEnum, IsNotEmpty, IsOptional } from "class-validator";
+import { IsNotBlank } from "src/utils/notBlank.validator";
 
 export enum DeviceType {
   rocket = "rocket",
@@ -39,6 +40,7 @@ export class UpdateDeviceDto {
   @Allow()
   @IsOptional()
   @IsNotEmpty()
+  @IsNotBlank()
   @ApiPropertyOptional()
   nickname: string;
 
@@ -46,6 +48,7 @@ export class UpdateDeviceDto {
   @IsOptional()
   @IsEnum(DeviceType)
   @IsNotEmpty()
+  @IsNotBlank()
   @ApiPropertyOptional()
   type: DeviceType;
 }
