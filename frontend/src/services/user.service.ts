@@ -32,7 +32,6 @@ export const fetchCurrentUser = async() => {
 export const fetchUserDevices = async () => {
     const res = await exploraApi.get('/users/devices');
     const devices: deviceResponse[] = res.data;
-    console.log(devices);
     return devices;
 
 };
@@ -43,7 +42,6 @@ export const registerNewDevice =async (deviceEui: string) => {
     }
     const res = await exploraApi.post('/users/devices', deviceToRegister);
     const device = res.data;
-    console.log(device);
     return device;
 };
 
@@ -64,7 +62,6 @@ export const updateUserDevices =async (devicesToUpdate:Map<string, {[key: string
     const endpointUrls: updateManyDevices[] = [];
     const responses: any[] = []
     devicesToUpdate.forEach((val, key) => {
-        console.log(key, val);
         endpointUrls.push({
             url: `/devices/${key}`,
             body: {
