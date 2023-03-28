@@ -44,14 +44,14 @@ const AccelerationCard = ({modalSize="full"}: any) => {
 
   const renderDateTimeRangeSelector = () => {
     return (
-      <Popover placement='bottom-start' closeOnBlur={false}>
+      <Popover placement='bottom-start'>
         <PopoverTrigger>
           <TimeIcon />
         </PopoverTrigger>
-        <PopoverContent width="500px">
+        <PopoverContent width="425px">
         <PopoverCloseButton />
         <PopoverBody>
-          <DateTimeRangePicker onChange={onChange} value={value} />
+          <DateTimeRangePicker onChange={onChange} value={value} closeWidgets={false} clearIcon={null} calendarIcon={null} />
         </PopoverBody>
         </PopoverContent>
       </Popover>
