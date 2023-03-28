@@ -1,6 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNotEmpty, IsEmail, Allow, IsOptional, ValidateIf, IsEnum, IsAlphanumeric } from "class-validator";
-import { DeviceType } from "src/devices/device.dto";
+import { IsNotEmpty, IsEmail, Allow, IsOptional, IsAlphanumeric } from "class-validator";
 
 export class LoginDto {
   @ApiProperty()

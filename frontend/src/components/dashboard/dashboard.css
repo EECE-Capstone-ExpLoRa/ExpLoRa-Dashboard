@@ -1,8 +1,9 @@
 .filled {
     border-color: green;
-    border-width: 2px;
+    border-width: 3px;
 }
 
-.empty {
-
+.white-space {
+    border-color: red;
+    border-width: 3px;
 }

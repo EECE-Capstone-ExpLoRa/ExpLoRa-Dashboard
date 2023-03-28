@@ -9,6 +9,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { queryClient } from "../..";
 import { deleteDeviceFromUser, fetchUserDevices, registerNewDevice, updateUserDevices } from "../../services/user.service";
+import './dashboard.css';
 
 type updateDeviceType = {
     nickname?: string,
@@ -19,6 +20,7 @@ const DashboardFooter = () => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [deviceEui, setDeviceEui] = useState('');
     const [deviceChanges, setdeviceChanges] = useState<Map<string, updateDeviceType>>(new Map<string, updateDeviceType>());
+    const [doesInputHaveText, setDoesInputHaveText] = useState<number[]>([]); //1 = filled, 0 = empty, -1 = whitespace
     const addDevicesModal = useDisclosure();
     const editDevicesModal = useDisclosure();
     const toast = useToast();
@@ -85,7 +87,22 @@ const DashboardFooter = () => {
               isClosable: true,
             });
           },
-    })
+    });
+
+    const handleInputFieldChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        const value = e.target.value;
+        const newArr = [...doesInputHaveText];
+        if (value.trim().length > 0) {
+            newArr[index] = 1;
+        }
+        else if (value.length > 0 && value.trim().length === 0) {
+            newArr[index] = -1;
+        }
+        else {
+            newArr[index] = 0;
+        }
+        setDoesInputHaveText(newArr);
+    }
     
     const handleDeviceEuiChange = (e: React.FormEvent<HTMLInputElement>) => {
         setDeviceEui(e.currentTarget.value);
@@ -121,6 +138,21 @@ const DashboardFooter = () => {
         else {
             deviceChanges.set(deviceEui, {nickname: newValue});
         }
+    };
+
+    const handleClassNameChange = (index: number):string => {
+        if (!doesInputHaveText) {
+            return "";
+        }
+        if (doesInputHaveText[index] === 1) {
+            return "filled";
+        }
+        else if (doesInputHaveText[index] === -1) {
+            return "white-space";
+        }
+        else {
+            return "";
+        }
     }
     
     if (devices.isLoading) {
@@ -147,7 +179,7 @@ const DashboardFooter = () => {
         );
     });
 
-    const editableDevices = devices.data.map((device) => {
+    const editableDevices = devices.data.map((device, index) => {
         const placeHolder = (device.nickname && device.nickname.trim() !== "")? device.nickname: device.device_eui;
         return (
             <HStack key={device.device_eui}>
@@ -169,9 +201,9 @@ const DashboardFooter = () => {
                 placeholder={placeHolder} 
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     handleDeviceNameChange(e, device.device_eui);
+                    handleInputFieldChange(e, index);
                 }}
-                // borderColor='green'
-                // borderWidth='2px'
+                className={handleClassNameChange(index)}
                 />
                 
                 <Tooltip hasArrow label='Delete device' aria-label="Tooltip to delete device">
@@ -214,6 +246,7 @@ const DashboardFooter = () => {
     const editDeviceModal = (
         <Modal isOpen={editDevicesModal.isOpen} onClose={() => {
             setdeviceChanges(new Map<string, {[key: string]: string}>());
+            setDoesInputHaveText([]);
             editDevicesModal.onClose();
             }} motionPreset='slideInBottom' >
                 <ModalOverlay backdropFilter='blur(10px)'/>
