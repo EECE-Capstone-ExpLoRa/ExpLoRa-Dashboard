@@ -19,75 +19,51 @@ const DashboardFooter = () => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [deviceEui, setDeviceEui] = useState('');
     const [deviceChanges, setdeviceChanges] = useState<Map<string, updateDeviceType>>(new Map<string, updateDeviceType>());
-    const [doesInputHaveText, setDoesInputHaveText] = useState<number[]>([]); //1 = filled, 0 = empty, -1 = whitespace
+    const [doesInputHaveText, setDoesInputHaveText] = useState<number[]>([]);
+    
     const addDevicesModal = useDisclosure();
     const editDevicesModal = useDisclosure();
+    
     const toast = useToast();
     const devices = useQuery({
         queryKey: ['userDevices'],
         queryFn: fetchUserDevices
     });
+
+    // Hanndles toast error or success notification depending on Mutation callback
+    const handleMutationCallback = (title: string, isSuccess: boolean, ) => {
+        const toastStatus = isSuccess? 'success' : 'error';
+        toast({
+            title: title,
+            status: toastStatus,
+            duration: 1000,
+            isClosable: true,
+        });
+        if (isSuccess) queryClient.invalidateQueries({queryKey: ['userDevices']});
+    };
+
+    // Mutates userDevices array whenever a new device is registered
     const registerDeviceMutation = useMutation({
         mutationFn: registerNewDevice,
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['userDevices']});
-            toast({
-                title: 'Device Registered',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-              });
-        },
-        onError: () => {
-            toast({
-              title: 'Device already registered with this account',
-              status: 'error',
-              duration: 3000,
-              isClosable: true,
-            });
-          }
-    });
-    const deleteDeviceMutation = useMutation({
-        mutationFn: deleteDeviceFromUser,
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['userDevices']});
-            toast({
-              title: 'Device sucessfully deleted',
-              status: 'success',
-              duration: 3000,
-              isClosable: true,
-            });
-        },
-        onError: () => {
-            toast({
-              title: 'Could not delete device',
-              status: 'error',
-              duration: 3000,
-              isClosable: true,
-            });
-          }
-    });
-    const updateDevicesMutation = useMutation({
-        mutationFn: updateUserDevices,
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['userDevices']});
-            toast({
-                title: 'Devices updated',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-              });
-        },
-        onError: () => {
-            toast({
-              title: 'Error updating devices',
-              status: 'error',
-              duration: 3000,
-              isClosable: true,
-            });
-          },
+        onSuccess: () => {handleMutationCallback('Device registered', true);},
+        onError: () => {handleMutationCallback('Device already registered with this account', false);},
     });
 
+    // Mutates userDevices array whenever a device is deleted
+    const deleteDeviceMutation = useMutation({
+        mutationFn: deleteDeviceFromUser,
+        onSuccess: () => {handleMutationCallback('Device sucessfully deleted', true);},
+        onError: () => {handleMutationCallback('Could not delete device', false)},
+    });
+
+    // Mutates userDevices array whenever a new devices nickname is update or device type is changed
+    const updateDevicesMutation = useMutation({
+        mutationFn: updateUserDevices,
+        onSuccess: () => {handleMutationCallback('Devices updated', true);},
+        onError: () => {handleMutationCallback('Error updating devices', false);},
+    });
+
+    // Handles whether an input field should be highlighted green (if text), red (if just whitespace), or if nothing entered
     const handleInputFieldChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const value = e.target.value;
         const newArr = [...doesInputHaveText];
@@ -101,12 +77,14 @@ const DashboardFooter = () => {
             newArr[index] = 0;
         }
         setDoesInputHaveText(newArr);
-    }
+    };
     
+    // Changes the internal deviceEui state to match what is being typed when registering new device
     const handleDeviceEuiChange = (e: React.FormEvent<HTMLInputElement>) => {
         setDeviceEui(e.currentTarget.value);
     };
 
+    // Registers device in backend and clears form data
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (deviceEui.trim() !== "") {
@@ -115,10 +93,12 @@ const DashboardFooter = () => {
         setDeviceEui('');
     };
 
-    const handleDeviceUpdates = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    // Calls update mutation when save button is pressed
+    const handleDeviceUpdates = () => {
         updateDevicesMutation.mutate(deviceChanges);
     };
 
+    // Changes the internal deviceEui type to match what is being selected when editing device type
     const handleDeviceTypeChange = (e: React.ChangeEvent<HTMLSelectElement>, deviceEui: string) => {
         const newValue = e.target.value;
         if (deviceChanges.has(deviceEui)) {
@@ -129,6 +109,7 @@ const DashboardFooter = () => {
         }
     };
 
+    // Changes the internal deviceEui state to match what is being typed when editing device nickname
     const handleDeviceNameChange = (e: React.ChangeEvent<HTMLInputElement>, deviceEui: string) => {
         const newValue = e.target.value;
         if (deviceChanges.has(deviceEui)) {
@@ -139,6 +120,7 @@ const DashboardFooter = () => {
         }
     };
 
+    // Changes class name to highlight text red (whitespace) or green (text)
     const handleClassNameChange = (index: number):string => {
         let newClassName: string = "";
         if (!doesInputHaveText) {
@@ -154,7 +136,14 @@ const DashboardFooter = () => {
             newClassName = "";
         }
         return newClassName;
-    }
+    };
+    
+    // resets all the states when the modal closes
+    const resetAllStates = () => {
+        setdeviceChanges(new Map<string, {[key: string]: string}>());
+        setDoesInputHaveText([]);
+        editDevicesModal.onClose();
+    };
     
     if (devices.isLoading) {
         return (<span>Loading...</span>)
@@ -164,6 +153,7 @@ const DashboardFooter = () => {
         return (<span> An error occured </span>);
     }
     
+    // Buttons/Tabs visible from the bottom of dashboard that coincide with the devices registered with user
     const deviceButtons = devices.data.map((device, index) => {
         return (
         <Button 
@@ -180,6 +170,7 @@ const DashboardFooter = () => {
         );
     });
 
+    // List of devices that show up within the edit devices modal
     const editableDevices = devices.data.map((device, index) => {
         const placeHolder = (device.nickname && device.nickname.trim() !== "")? device.nickname: device.device_eui;
         return (
@@ -220,6 +211,7 @@ const DashboardFooter = () => {
         )
     });
 
+    // modal to register a new device to track
     const addDeviceModal = (
         <Modal isOpen={addDevicesModal.isOpen} onClose={addDevicesModal.onClose} motionPreset='slideInBottom' >
                 <ModalOverlay backdropFilter='blur(10px)'/>
@@ -244,12 +236,9 @@ const DashboardFooter = () => {
             </Modal>
     );
 
+    // modal to edit existing devices
     const editDeviceModal = (
-        <Modal isOpen={editDevicesModal.isOpen} onClose={() => {
-            setdeviceChanges(new Map<string, {[key: string]: string}>());
-            setDoesInputHaveText([]);
-            editDevicesModal.onClose();
-            }} motionPreset='slideInBottom' >
+        <Modal isOpen={editDevicesModal.isOpen} onClose={resetAllStates} motionPreset='slideInBottom' >
                 <ModalOverlay backdropFilter='blur(10px)'/>
                 <ModalContent>
                     <ModalHeader>Edit Devices</ModalHeader>
@@ -262,8 +251,8 @@ const DashboardFooter = () => {
                         </Box>
                     </ModalBody>
                     <ModalFooter justifyContent='center'>
-                        <Button leftIcon={<CheckIcon />} colorScheme="green" onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                            handleDeviceUpdates(e);
+                        <Button leftIcon={<CheckIcon />} colorScheme="green" onClick={() => {
+                            handleDeviceUpdates();
                             editDevicesModal.onClose();
                         }} 
                         > Update Devices </Button>
@@ -272,6 +261,7 @@ const DashboardFooter = () => {
             </Modal>
     );
     
+    // Dashboard footer being returned
     return (
         <Flex position='fixed' bottom='0' width='100%' margin='12px' >
             {deviceButtons}

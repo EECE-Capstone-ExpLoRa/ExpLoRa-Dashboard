@@ -5,8 +5,32 @@ import TemperatureChart from "../charts/TemperatureChart";
 import Map from "../charts/Map";
 import AirQualityCard from "../charts/AirQualityChart";
 import DashboardFooter from "./DashboardFooter";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCurrentUser } from "../../services/user.service";
+import { useEffect } from "react";
 
 const Dashboard = () => {
+  const navigate = useNavigate();  
+  const user = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: fetchCurrentUser,
+    retry: false
+  });
+
+  useEffect(() => {
+    const goToHomePage = () =>{
+      navigate('/signin');
+    };
+    if (user.isError) {
+      goToHomePage();
+    }
+  });
+
+  if (user.isLoading) {
+    return <span>Loading...</span>
+  }
+
   return (
       <Box backgroundColor="gray.100">
         <Grid templateRows="repeat(3, 1fr)" templateColumns="repeat(3, 1fr)" gap={4} height="100vh" paddingX={4} paddingY={4} >

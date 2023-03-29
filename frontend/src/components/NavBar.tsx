@@ -46,28 +46,28 @@ const NavBar = () => {
   
   return (
     <Flex direction='row' justifyContent='space-between' alignItems='center'>
-    <Flex>
-      <Link to="/dashboard">
-        <Flex paddingX={6} marginY={6}>
-            <Image src="/ExpLoRa@2x.png" height={7}/>
-        </Flex>
-      </Link>
-    </Flex>
-    
-    <Flex>
-      <Link to="/profile">
-        <Flex alignItems='center' paddingRight='12px'>
-          <Image src='/profileIcon.png' padding='5px' height={7}/> My Profile
-        </Flex>
-      </Link>
+      <Flex>
+        <Link to="/dashboard">
+          <Flex paddingX={6} marginY={6}>
+              <Image src="/ExpLoRa@2x.png" height={7}/>
+          </Flex>
+        </Link>
+      </Flex>
+      
+      <Flex>
+        <Link to="/profile">
+          <Flex alignItems='center' paddingRight='12px'>
+            <Image src='/profileIcon.png' padding='5px' height={7}/> My Profile
+          </Flex>
+        </Link>
 
-      <Link to="/" onClick={handleLogout}>
-        <Flex alignItems='center' paddingLeft='12px'>
-          Logout <Image src='/logout-svgrepo-com.svg' padding='5px' height={7}/>
-        </Flex>
-      </Link>
+        <Link to="/" onClick={handleLogout}>
+          <Flex alignItems='center' paddingLeft='12px'>
+            Logout <Image src='/logout-svgrepo-com.svg' padding='5px' paddingRight='12px' height={7}/>
+          </Flex>
+        </Link>
+      </Flex>
     </Flex>
-  </Flex>
   )
     
 };
