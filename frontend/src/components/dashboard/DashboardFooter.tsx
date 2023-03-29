@@ -9,7 +9,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { queryClient } from "../..";
 import { deleteDeviceFromUser, fetchUserDevices, registerNewDevice, updateUserDevices } from "../../services/user.service";
-import './dashboard.css';
 
 type updateDeviceType = {
     nickname?: string,
@@ -141,18 +140,20 @@ const DashboardFooter = () => {
     };
 
     const handleClassNameChange = (index: number):string => {
+        let newClassName: string = "";
         if (!doesInputHaveText) {
-            return "";
+            newClassName = "";
         }
-        if (doesInputHaveText[index] === 1) {
-            return "filled";
+        else if (doesInputHaveText[index] === 1) {
+            newClassName = "filled";
         }
         else if (doesInputHaveText[index] === -1) {
-            return "white-space";
+            newClassName = "white-space";
         }
         else {
-            return "";
+            newClassName = "";
         }
+        return newClassName;
     }
     
     if (devices.isLoading) {

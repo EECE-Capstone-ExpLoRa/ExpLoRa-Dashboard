@@ -1,9 +1,9 @@
 .filled {
-    border-color: green;
-    border-width: 3px;
+    border-color: green !important;
+    border-width: 2.5px !important;
 }
 
 .white-space {
-    border-color: red;
-    border-width: 3px;
+    border-color: red !important;
+    border-width: 3px !important;
 }
