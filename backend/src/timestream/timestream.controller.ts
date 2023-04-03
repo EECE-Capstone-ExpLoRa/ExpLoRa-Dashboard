@@ -25,8 +25,10 @@ export class TimestreamController {
     }
 
     @Get(':deviceEui/accelerations')
-    async getAccelerations(@Param('deviceEui') eui: string) {
-        return await this.timestreamService.getAllAccelerations(eui); 
+    async getAccelerations(
+        @Param('deviceEui') eui: string,
+        @Query() filterDto: FilterDto) {
+        return await this.timestreamService.getAllAccelerations(eui, filterDto); 
     }
 
     @Get(':deviceEui/:measureName')

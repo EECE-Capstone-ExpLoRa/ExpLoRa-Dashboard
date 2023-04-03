@@ -1,11 +1,10 @@
 import { Box, Grid, GridItem } from "@chakra-ui/react";
 import PressureChart from "../charts/PressureChart";
-import AccelerationCard from "../charts/AccelerationChart"
-import TemperatureChart from "../charts/TemperatureChart";
+import AccelerationCard from "../charts/AccelerationCard"
+import TemperatureCard from "../charts/TemperatureCard";
 import Map from "../charts/Map";
-import NavBar from "../NavBar";
-import AirQualityCard from "../charts/AirQualityChart";
-import CpuUsageChart from '../charts/CpuUsageChart';
+import AirQualityCard from "../charts/AirQualityCard";
+import AircraftMotionCard from "../charts/AircraftMotionChart";
 
 const Dashboard = () => {
   return (
@@ -24,10 +23,10 @@ const Dashboard = () => {
             <PressureChart />
           </GridItem>
           <GridItem rowSpan={1} colSpan={1}>
-            <TemperatureChart />
+            <TemperatureCard />
           </GridItem>
           <GridItem rowSpan={1} colSpan={1}>
-            <CpuUsageChart />
+            <AircraftMotionCard />
           </GridItem>
         </Grid>
       </Box>
