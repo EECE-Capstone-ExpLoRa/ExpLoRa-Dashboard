@@ -2,65 +2,18 @@ import { Box, Button, Flex, HStack, Image, Modal, ModalBody, ModalCloseButton, M
 import moment from 'moment';
 import { ReactElement, useEffect, useState } from 'react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { registerPressureSocket } from '../../services/socket.service';
+import { registerTemperatureSocket } from '../../services/socket.service';
 import { TimestreamSocketResponse } from '../../utils/types';
 import { getRecentData } from '../../utils/utils';
-import ExpandableCard from '../ExpandableCard';
 
-const data = [
-  {
-    name: 'Data A',
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: 'Data B',
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: 'Data C',
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: 'Data D',
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: 'Data E',
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: 'Data F',
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: 'Data G',
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
-
-
-const PressureCard = ({modalSize="full"}): ReactElement => {
+const TemperatureCard = ({modalSize="full"}): ReactElement => {
   const [open, setOpen] = useState(true)
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure() 
 
   const expandableContent = () => {
     return (
       <Box width="full" height="250px" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
-        <PressureChart />
+        <TemperatureChart />
       </Box>
     );
   }
@@ -88,7 +41,7 @@ const PressureCard = ({modalSize="full"}): ReactElement => {
         <Flex cursor="pointer" roundedTop="md" width="full" padding={4} shadow="sm" backgroundColor="white" justify="space-between">
           <HStack>
             {renderToggleButton()}
-            <Text fontSize="sm">Pressure</Text>
+            <Text fontSize="sm">Temperature</Text>
           </HStack>
           <HStack>
             {renderModalOpenButton()}
@@ -99,11 +52,11 @@ const PressureCard = ({modalSize="full"}): ReactElement => {
       <Modal isOpen={isModalOpen} onClose={onModalClose} size={modalSize}>
         <ModalOverlay/>
         <ModalContent>
-          <ModalHeader>Pressure</ModalHeader> 
+          <ModalHeader>Temperature</ModalHeader> 
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <PressureChart />
+              <TemperatureChart />
             </Box>
           </ModalBody>
           <ModalFooter>
@@ -117,15 +70,15 @@ const PressureCard = ({modalSize="full"}): ReactElement => {
   );
 }
 
-const PressureChart = (): ReactElement => {
-  const [pressureData, setPressureData] = useState<TimestreamSocketResponse>([])
+const TemperatureChart = (): ReactElement => {
+  const [temperatureData, setTemperatureData] = useState<TimestreamSocketResponse>([])
 
   useEffect(() => {
-    const socket = registerPressureSocket()
-    socket.on('pressure', (pressure) => {
-      setPressureData(oldData => {
-        let allData = [...oldData, ...pressure.values]
-
+    const socket = registerTemperatureSocket()
+    socket.on("temperature", (temp) => {
+      setTemperatureData(oldData => {
+        let allData = [...oldData, ...temp.values]
+        
         return getRecentData(allData)
       })
     })
@@ -134,7 +87,7 @@ const PressureChart = (): ReactElement => {
   return (
     <ResponsiveContainer height={"100%"}>
       <AreaChart
-        data={pressureData}
+        data={temperatureData}
         margin={{
           top: 10,
           right: 30,
@@ -152,4 +105,4 @@ const PressureChart = (): ReactElement => {
   );
 }
 
-export default PressureCard
+export default TemperatureCard;

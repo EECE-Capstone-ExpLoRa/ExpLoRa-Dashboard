@@ -13,7 +13,7 @@ type AccelerationsResponse = {
 export class TimestreamService {
     private queryClient: TimestreamQueryClient = new TimestreamQueryClient({region: "us-east-1"});
 
-    private readonly dbTable = 'TestDatabase.Data';
+    private readonly dbTable = 'TestDatabase.ExploraNew';
 
     private async handleQuery(queryRequest: string) {
         const queryRequestParams: QueryCommandInput = {
@@ -37,7 +37,7 @@ export class TimestreamService {
                 measureType = 'varchar';
                 break;
             default:
-                measureType = 'bigint';
+                measureType = 'double';
                 break;
         };
 
@@ -58,17 +58,17 @@ export class TimestreamService {
         rows.forEach((row) => {
             const data = row.Data;
             const timestamp = data[0].ScalarValue;
-            const value = parseInt(data[1].ScalarValue);
+            const value = parseFloat(data[1].ScalarValue);
             const unixTime = this.datetimeToUnix(timestamp);
             res.push({timestamp: unixTime, value: value});
-
         });
         
         return res;
     }
 
-    async getAllAccelerations(deviceEui: string, filterDto: FilterDto) {
-        let queryRequest: string = `SELECT time, measure_name, measure_value::bigint FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' AND (measure_name = 'Acceleration X' OR measure_name = 'Acceleration Y' OR measure_name = 'Acceleration Z')`;
+
+    async getAllAccelerations(deviceEui: string, filterDto: FilterDto): Promise<{timestamp: number, AccelerationX: number, AccelerationY: number, AccelerationZ: number}[]> {
+        let queryRequest: string = `SELECT time, measure_name, measure_value::double FROM ${this.dbTable} WHERE device_eui = '${deviceEui}' AND (measure_name = 'Acceleration X' OR measure_name = 'Acceleration Y' OR measure_name = 'Acceleration Z')`;
         if (filterDto) {
             if (filterDto.minTime) {
                  queryRequest += ` AND time >= '${this.unixToDatetime(parseInt(filterDto.minTime))}'`;
@@ -98,7 +98,7 @@ export class TimestreamService {
             accels.forEach((acceleration) => {
                 const data = acceleration.Data;
                 const name = data[1].ScalarValue.replace(' ', '');
-                const val = parseInt(data[2].ScalarValue);
+                const val = parseFloat(data[2].ScalarValue);
                 vals[name] = val;
             });
             res.push(vals);

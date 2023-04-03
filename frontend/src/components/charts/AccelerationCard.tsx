@@ -11,14 +11,16 @@ import {
   Line
 } from 'recharts';
 import moment from 'moment'
-import { getAcceleration, getAccelerationX, getAccelerationY, getAccelerationZ} from '../../services/timestream.service';
 // @ts-ignore
 import DateTimeRangePicker from '@wojtekmaj/react-datetimerange-picker'
 import { TimeIcon } from '@chakra-ui/icons'
+import { AccelerationDirection, TimestreamAccelerationsResponse, TimestreamSocketResponse } from '../../utils/types';
+import { registerAccelerationSocket } from '../../services/socket.service';
+
 
 const AccelerationCard = ({modalSize="full"}: any) => {
   const [open, setOpen] = useState(true)
-  const [accelerationDir, setAccelerationDir] = useState('x')
+  const [accelerationDir, setAccelerationDir] = useState<string>(AccelerationDirection.X)
   const now = new Date()
   const [value, onChange] = useState([new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14), now])
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure() 
@@ -34,10 +36,10 @@ const AccelerationCard = ({modalSize="full"}: any) => {
   const renderDirectionSelect = (size: string) => {
     return (
       <Select value={accelerationDir} size={size} onChange={(e) => setAccelerationDir(e.target.value)}>
-        <option value='x'>X</option>
-        <option value='y'>Y</option>
-        <option value='z'>Z</option>
-        <option value="all">All</option>
+        <option value={AccelerationDirection.X}>X</option>
+        <option value={AccelerationDirection.Y}>Y</option>
+        <option value={AccelerationDirection.Z}>Z</option>
+        <option value={AccelerationDirection.All}>All</option>
       </Select>
     );
   }
@@ -113,45 +115,66 @@ const AccelerationCard = ({modalSize="full"}: any) => {
   );
 }
 
-
 export const AccelerationChart = ({accelerationDir, timeRange}: {accelerationDir: string, timeRange: Date[]}) => {
-  const [accelerationXData, setAccelerationXData] = useState([])
-  const [accelerationYData, setAccelerationYData] = useState([])
-  const [accelerationZData, setAccelerationZData] = useState([])
-  const [accelerationData, setAccelerationData] = useState([])
-
+  const [accelerationXData, setAccelerationXData] = useState<TimestreamSocketResponse>([])
+  const [accelerationYData, setAccelerationYData] = useState<TimestreamSocketResponse>([])
+  const [accelerationZData, setAccelerationZData] = useState<TimestreamSocketResponse>([])
+  const [accelerationData, setAccelerationData] = useState<TimestreamAccelerationsResponse>([])
   const [minTimeQueryParam, maxTimeQueryParam] = timeRange
 
   useEffect(() => {
-    getAccelerationX("00-80-00-00-04-05-b6-b1", minTimeQueryParam.getTime(), maxTimeQueryParam.getTime()).then((res) => {
-      setAccelerationXData(res)
-    })
-    getAccelerationY("00-80-00-00-04-05-b6-b1", minTimeQueryParam.getTime(), maxTimeQueryParam.getTime()).then((res) => {      
-      setAccelerationYData(res)
-    })
-    getAccelerationZ("00-80-00-00-04-05-b6-b1", minTimeQueryParam.getTime(), maxTimeQueryParam.getTime()).then((res) => {      
-      setAccelerationZData(res)
-    })
-    getAcceleration("00-80-00-00-04-05-b6-b1", minTimeQueryParam.getTime(), maxTimeQueryParam.getTime()).then((res) => {
-      setAccelerationData(res)
+    const socket = registerAccelerationSocket()
+    
+    socket.on(AccelerationDirection.All, (accelerations) => {
+      setAccelerationData(oldData => {
+        let allData = [...oldData, ...accelerations.values]
+        allData = allData.slice(-250)
+    
+        return allData;
+      })
+    });
+
+    socket.on(AccelerationDirection.X, (accelerations) => {
+      setAccelerationXData(oldData => {
+        let allData = [...oldData, ...accelerations.values]
+      
+        allData = allData.slice(-250)
+        
+        return allData;
+      })
     })
 
+    socket.on(AccelerationDirection.Y, (accelerations) => {
+      setAccelerationYData(oldData => {
+        let allData = [...oldData, ...accelerations.values]
+        allData = allData.slice(-250)
+
+        return allData;
+      })
+    })
+
+    socket.on(AccelerationDirection.Z, (accelerations) => {
+      setAccelerationZData(oldData => {
+        let allData = [...oldData, ...accelerations.values]
+        allData = allData.slice(-20)
+        return allData;
+      })
+    })
   }, [minTimeQueryParam, maxTimeQueryParam])  
 
   const getAccelerationData = () => {
     switch(accelerationDir) {
-      case "x": 
+      case AccelerationDirection.X: 
         return accelerationXData;
 
-      case "y":
+      case AccelerationDirection.Y:
         return accelerationYData;
 
-      case "z":
+      case AccelerationDirection.Z:
         return accelerationZData;
 
-      case "all":
+      case AccelerationDirection.All:
         return accelerationData;
-
 
       default: 
         return [];
@@ -174,10 +197,10 @@ export const AccelerationChart = ({accelerationDir, timeRange}: {accelerationDir
         <YAxis height={50} />
         <Tooltip />
         {
-          accelerationDir === "all" && 
+          accelerationDir === AccelerationDirection.All && 
           <Legend />
         }
-        { accelerationDir !== "all" &&
+        { accelerationDir !== AccelerationDirection.All &&
           <Line type="monotone" dataKey="value" stroke="#25386A" activeDot={{ r: 8 }} />
         }
         <Line type="monotone" dataKey="AccelerationX" stroke="#25386A" activeDot={{ r: 8 }} />
@@ -186,7 +209,6 @@ export const AccelerationChart = ({accelerationDir, timeRange}: {accelerationDir
       </LineChart>
     </ResponsiveContainer>
   );
-        
 }
 
 export default AccelerationCard;
