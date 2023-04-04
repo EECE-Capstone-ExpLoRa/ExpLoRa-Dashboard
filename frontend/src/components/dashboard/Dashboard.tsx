@@ -1,14 +1,15 @@
 import { Box, Grid, GridItem } from "@chakra-ui/react";
 import PressureChart from "../charts/PressureChart";
-import AccelerationCard from "../charts/AccelerationChart"
-import TemperatureChart from "../charts/TemperatureChart";
+import AccelerationCard from "../charts/AccelerationCard"
+import TemperatureCard from "../charts/TemperatureCard";
 import Map from "../charts/Map";
-import AirQualityCard from "../charts/AirQualityChart";
-import DashboardFooter from "./DashboardFooter";
+import AirQualityCard from "../charts/AirQualityCard";
+import AircraftMotionCard from "../charts/AircraftMotionChart";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchCurrentUser } from "../../services/user.service";
 import { useEffect } from "react";
+import DashboardFooter from "./DashboardFooter";
 
 const Dashboard = () => {
   const navigate = useNavigate();  
@@ -37,17 +38,20 @@ const Dashboard = () => {
           <GridItem rowSpan={1} colSpan={1}>
             <AirQualityCard />
           </GridItem>
-          <GridItem rowSpan={2} colSpan={1}>
+          <GridItem rowSpan={1} colSpan={1}>
             <Map />
           </GridItem>
           <GridItem rowSpan={1} colSpan={1}>
             <AccelerationCard />
           </GridItem>
-          <GridItem rowSpan={2} colSpan={1}>
+          <GridItem rowSpan={1} colSpan={1}>
             <PressureChart />
           </GridItem>
-          <GridItem rowSpan={2} colSpan={1}>
-            <TemperatureChart />
+          <GridItem rowSpan={1} colSpan={1}>
+            <TemperatureCard />
+          </GridItem>
+          <GridItem rowSpan={1} colSpan={1}>
+            <AircraftMotionCard />
           </GridItem>
         </Grid>
         <DashboardFooter />
