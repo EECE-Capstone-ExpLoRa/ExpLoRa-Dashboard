@@ -1,5 +1,28 @@
-import { Box, Button, Flex, HStack, Image, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, Select, Text, useDisclosure } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Image,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Select,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import {
   XAxis,
   YAxis,
@@ -8,79 +31,136 @@ import {
   Legend,
   ResponsiveContainer,
   LineChart,
-  Line
-} from 'recharts';
-import moment from 'moment'
+  Line,
+} from "recharts";
+import moment from "moment";
 // @ts-ignore
-import DateTimeRangePicker from '@wojtekmaj/react-datetimerange-picker'
-import { TimeIcon } from '@chakra-ui/icons'
-import { AccelerationDirection, TimestreamAccelerationsResponse, TimestreamSocketResponse } from '../../utils/types';
-import { registerAccelerationSocket } from '../../services/socket.service';
+import DateTimeRangePicker from "@wojtekmaj/react-datetimerange-picker";
+import { TimeIcon } from "@chakra-ui/icons";
+import {
+  AccelerationDirection,
+  TimestreamAccelerationsResponse,
+  TimestreamSocketResponse,
+} from "../../utils/types";
+import { getSocket } from "../../services/socket.service";
+import { getEventName, getRecentData } from "../../utils/utils";
 
-
-const AccelerationCard = ({modalSize="full"}: any) => {
-  const [open, setOpen] = useState(true)
-  const [accelerationDir, setAccelerationDir] = useState<string>(AccelerationDirection.X)
-  const now = new Date()
-  const [value, onChange] = useState([new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14), now])
-  const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose} = useDisclosure() 
+const AccelerationCard = ({ modalSize = "full" }: any) => {
+  const [open, setOpen] = useState(true);
+  const [accelerationDir, setAccelerationDir] = useState<string>(
+    AccelerationDirection.X
+  );
+  const now = new Date();
+  const [value, onChange] = useState([
+    new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14),
+    now,
+  ]);
+  const {
+    isOpen: isModalOpen,
+    onOpen: onModalOpen,
+    onClose: onModalClose,
+  } = useDisclosure();
 
   const expandableContent = () => {
     return (
-      <Box width="full" height="250px" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
-        <AccelerationChart accelerationDir={accelerationDir} timeRange={value} />
+      <Box
+        width="full"
+        height="250px"
+        padding={4}
+        backgroundColor="white"
+        shadow={"md"}
+        borderTop={2}
+      >
+        <AccelerationChart
+          accelerationDir={accelerationDir}
+          timeRange={value}
+        />
       </Box>
     );
-  }
+  };
 
   const renderDirectionSelect = (size: string) => {
     return (
-      <Select value={accelerationDir} size={size} onChange={(e) => setAccelerationDir(e.target.value)}>
+      <Select
+        value={accelerationDir}
+        size={size}
+        onChange={(e) => setAccelerationDir(e.target.value)}
+      >
         <option value={AccelerationDirection.X}>X</option>
         <option value={AccelerationDirection.Y}>Y</option>
         <option value={AccelerationDirection.Z}>Z</option>
         <option value={AccelerationDirection.All}>All</option>
       </Select>
     );
-  }
+  };
 
   const renderDateTimeRangeSelector = () => {
     return (
-      <Popover placement='bottom-start'>
+      <Popover placement="bottom-start">
         <PopoverTrigger>
           <TimeIcon />
         </PopoverTrigger>
         <PopoverContent width="425px">
-        <PopoverCloseButton />
-        <PopoverBody>
-          <DateTimeRangePicker onChange={onChange} value={value} closeWidgets={false} clearIcon={null} calendarIcon={null} />
-        </PopoverBody>
+          <PopoverCloseButton />
+          <PopoverBody>
+            <DateTimeRangePicker
+              onChange={onChange}
+              value={value}
+              closeWidgets={false}
+              clearIcon={null}
+              calendarIcon={null}
+            />
+          </PopoverBody>
         </PopoverContent>
       </Popover>
     );
-  }
+  };
 
   const renderToggleButton = () => {
     if (open) {
       return (
-        <Image onClick={() => setOpen(!open)} width={4} height={4} src="/minimize.png" />
+        <Image
+          onClick={() => setOpen(!open)}
+          width={4}
+          height={4}
+          src="/minimize.png"
+        />
       );
     }
     return (
-      <Image onClick={() => setOpen(!open)} width={4} height={4} src="/maximize.png" />
+      <Image
+        onClick={() => setOpen(!open)}
+        width={4}
+        height={4}
+        src="/maximize.png"
+      />
     );
-  }
+  };
 
   const renderModalOpenButton = () => {
     return (
-      <Image onClick={onModalOpen} marginLeft={5} width={5} height={5} src="/popout.png" />
+      <Image
+        onClick={onModalOpen}
+        marginLeft={5}
+        width={5}
+        height={5}
+        src="/popout.png"
+      />
     );
-  }
+  };
 
   return (
     <>
       <Box border={2} rounded="md">
-        <Flex cursor="pointer" roundedTop="md" width="full" padding={4} shadow="sm" backgroundColor="white" justify="space-between">
+        <Flex
+          cursor="pointer"
+          roundedTop="md"
+          width="full"
+          padding={4}
+          shadow="sm"
+          backgroundColor="white"
+          justify="space-between"
+        >
           <HStack>
             {renderToggleButton()}
             <Text fontSize="sm">Acceleration</Text>
@@ -94,13 +174,16 @@ const AccelerationCard = ({modalSize="full"}: any) => {
         {open && expandableContent()}
       </Box>
       <Modal isOpen={isModalOpen} onClose={onModalClose} size={modalSize}>
-        <ModalOverlay/>
+        <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Acceleration</ModalHeader> 
+          <ModalHeader>Acceleration</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <AccelerationChart accelerationDir={accelerationDir} timeRange={value} />
+              <AccelerationChart
+                accelerationDir={accelerationDir}
+                timeRange={value}
+              />
             </Box>
             {renderDirectionSelect("sm")}
           </ModalBody>
@@ -113,58 +196,58 @@ const AccelerationCard = ({modalSize="full"}: any) => {
       </Modal>
     </>
   );
-}
+};
 
-export const AccelerationChart = ({accelerationDir, timeRange}: {accelerationDir: string, timeRange: Date[]}) => {
-  const [accelerationXData, setAccelerationXData] = useState<TimestreamSocketResponse>([])
-  const [accelerationYData, setAccelerationYData] = useState<TimestreamSocketResponse>([])
-  const [accelerationZData, setAccelerationZData] = useState<TimestreamSocketResponse>([])
-  const [accelerationData, setAccelerationData] = useState<TimestreamAccelerationsResponse>([])
-  const [minTimeQueryParam, maxTimeQueryParam] = timeRange
+export const AccelerationChart = ({
+  accelerationDir,
+  timeRange,
+}: {
+  accelerationDir: string;
+  timeRange: Date[];
+}) => {
+  const [accelerationXData, setAccelerationXData] =
+    useState<TimestreamSocketResponse>([]);
+  const [accelerationYData, setAccelerationYData] =
+    useState<TimestreamSocketResponse>([]);
+  const [accelerationZData, setAccelerationZData] =
+    useState<TimestreamSocketResponse>([]);
+  const [accelerationData, setAccelerationData] =
+    useState<TimestreamAccelerationsResponse>([]);
+  const [minTimeQueryParam, maxTimeQueryParam] = timeRange;
 
   useEffect(() => {
-    const socket = registerAccelerationSocket()
-    
-    socket.on(AccelerationDirection.All, (accelerations) => {
-      setAccelerationData(oldData => {
-        let allData = [...oldData, ...accelerations.values]
-        allData = allData.slice(-250)
-    
-        return allData;
-      })
+    const socket = getSocket();
+
+    //TODO: figure out accelerations endpoint
+
+    socket.on(getEventName(AccelerationDirection.X), (res: any) => {
+      setAccelerationXData((oldData) => {
+        let allData = [...oldData, res.datapoint];
+
+        return getRecentData(allData);
+      });
     });
 
-    socket.on(AccelerationDirection.X, (accelerations) => {
-      setAccelerationXData(oldData => {
-        let allData = [...oldData, ...accelerations.values]
-      
-        allData = allData.slice(-250)
-        
-        return allData;
-      })
-    })
+    socket.on(getEventName(AccelerationDirection.Y), (res: any) => {
+      setAccelerationYData((oldData) => {
+        let allData = [...oldData, res.datapoint];
 
-    socket.on(AccelerationDirection.Y, (accelerations) => {
-      setAccelerationYData(oldData => {
-        let allData = [...oldData, ...accelerations.values]
-        allData = allData.slice(-250)
+        return getRecentData(allData);
+      });
+    });
 
-        return allData;
-      })
-    })
+    socket.on(getEventName(AccelerationDirection.Z), (res) => {
+      setAccelerationZData((oldData) => {
+        let allData = [...oldData, res.datapoint];
 
-    socket.on(AccelerationDirection.Z, (accelerations) => {
-      setAccelerationZData(oldData => {
-        let allData = [...oldData, ...accelerations.values]
-        allData = allData.slice(-20)
-        return allData;
-      })
-    })
-  }, [minTimeQueryParam, maxTimeQueryParam])  
+        return getRecentData(allData);
+      });
+    });
+  }, [minTimeQueryParam, maxTimeQueryParam]);
 
   const getAccelerationData = () => {
-    switch(accelerationDir) {
-      case AccelerationDirection.X: 
+    switch (accelerationDir) {
+      case AccelerationDirection.X:
         return accelerationXData;
 
       case AccelerationDirection.Y:
@@ -176,10 +259,10 @@ export const AccelerationChart = ({accelerationDir, timeRange}: {accelerationDir
       case AccelerationDirection.All:
         return accelerationData;
 
-      default: 
+      default:
         return [];
     }
-  }
+  };
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -193,22 +276,36 @@ export const AccelerationChart = ({accelerationDir, timeRange}: {accelerationDir
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis height={50} dataKey="timestamp" domain={['auto', 'auto']} name="Time" tickFormatter = {(unixTime) => moment(unixTime).format('HH:mm:ss Do')} type="number" />
+        <XAxis
+          height={50}
+          dataKey="timestamp"
+          domain={["auto", "auto"]}
+          name="Time"
+          tickFormatter={(unixTime) => moment(unixTime).format("HH:mm:ss Do")}
+          type="number"
+        />
         <YAxis height={50} />
         <Tooltip />
-        {
-          accelerationDir === AccelerationDirection.All && 
-          <Legend />
-        }
-        { accelerationDir !== AccelerationDirection.All &&
-          <Line type="monotone" dataKey="value" stroke="#25386A" activeDot={{ r: 8 }} />
-        }
-        <Line type="monotone" dataKey="AccelerationX" stroke="#25386A" activeDot={{ r: 8 }} />
+        {accelerationDir === AccelerationDirection.All && <Legend />}
+        {accelerationDir !== AccelerationDirection.All && (
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#25386A"
+            activeDot={{ r: 8 }}
+          />
+        )}
+        <Line
+          type="monotone"
+          dataKey="AccelerationX"
+          stroke="#25386A"
+          activeDot={{ r: 8 }}
+        />
         <Line type="monotone" dataKey="AccelerationY" stroke="#70A8B7" />
         <Line type="monotone" dataKey="AccelerationZ" stroke="#25386A" />
       </LineChart>
     </ResponsiveContainer>
   );
-}
+};
 
 export default AccelerationCard;

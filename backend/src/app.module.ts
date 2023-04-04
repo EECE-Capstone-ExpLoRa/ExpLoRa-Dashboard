@@ -13,6 +13,9 @@ import { DatabaseConfigService } from './config/database.config';
 import { BlacklistMiddleware } from './utils/blacklist.middleware';
 import { UserController } from './user/user.controller';
 import { DeviceController } from './devices/device.controller';
+import { LiveModule } from './live/live.module';
+import { LiveService } from './live/live.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -27,10 +30,12 @@ import { DeviceController } from './devices/device.controller';
     UserModule,
     DeviceModule,
     TimestreamModule,
-    AuthModule
+    AuthModule,
+    LiveModule,
+    HttpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, LiveService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
