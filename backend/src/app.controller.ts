@@ -1,6 +1,23 @@
-import { Controller, Get, Post, UseGuards, Req, Res, Inject, CACHE_MANAGER, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Req,
+  Res,
+  Inject,
+  CACHE_MANAGER,
+  Body,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Cache } from 'cache-manager';
 import { Request } from 'express';
 import { AppService } from './app.service';
@@ -18,7 +35,8 @@ export class AppController {
     private readonly liveService: LiveService,
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -27,18 +45,19 @@ export class AppController {
 
   @Post()
   async handleConnection(@Body() body) {
-    console.log("From live");
-    console.log(body);
     await this.liveService.handle(body);
   }
 
   @Post('auth/login')
   @UseGuards(LocalAuthGuard)
-  @ApiOperation({summary: "Allows users to login"})
-  @ApiBody({type: LoginDto})
-  @ApiCreatedResponse({description: "A JWT for authorized users", type: String})
-  @ApiUnauthorizedResponse({description: "Unauthorized"})
-  async login(@Req() req) { 
+  @ApiOperation({ summary: 'Allows users to login' })
+  @ApiBody({ type: LoginDto })
+  @ApiCreatedResponse({
+    description: 'A JWT for authorized users',
+    type: String,
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async login(@Req() req) {
     //! Do we want to add a reroute here if it fails?
     const token = await this.authService.login(req.user);
     return token;
@@ -47,10 +66,15 @@ export class AppController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({summary: "Allows authorized users to view their user details"})
-  @ApiCreatedResponse({description: "Current user's user information", type: UserDto})
-  @ApiUnauthorizedResponse({description: "Unauthorized"})
-  getProfile(@Req() req) { 
+  @ApiOperation({
+    summary: 'Allows authorized users to view their user details',
+  })
+  @ApiCreatedResponse({
+    description: "Current user's user information",
+    type: UserDto,
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  getProfile(@Req() req) {
     const user: UserDto = req.user;
     return user;
   }
@@ -58,9 +82,14 @@ export class AppController {
   @Get('auth/logout')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({summary: "Allows authorized users to log out of their account"})
-  @ApiCreatedResponse({description: "Current user's user information", type: UserDto})
-  @ApiUnauthorizedResponse({description: "Unauthorized"})
+  @ApiOperation({
+    summary: 'Allows authorized users to log out of their account',
+  })
+  @ApiCreatedResponse({
+    description: "Current user's user information",
+    type: UserDto,
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async logout(@Req() req: Request) {
     const bearer = req.headers.authorization;
     const jwt = bearer.replace('Bearer ', '');
