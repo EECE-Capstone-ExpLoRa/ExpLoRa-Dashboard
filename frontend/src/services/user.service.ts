@@ -1,4 +1,5 @@
 import { createUserObject } from "../utils/createUser.dto";
+import { updateUserObject } from "../utils/updateUser.dto";
 import { loginResponse } from "../utils/loginResponse.dto";
 import { loginUserObject } from "../utils/loginUser.dto";
 import { userResponseObject } from "../utils/userResponse.dto";
@@ -14,6 +15,11 @@ export const login = async(user: loginUserObject) => {
     const res = await exploraApi.post('/auth/login', user);
     const accessToken: loginResponse = res.data;
     return accessToken;
+}
+
+export const update = async(updateUser: updateUserObject) => {
+    const res = await exploraApi.put('/users', updateUser);
+    return res.data;
 }
 
 export const logout = async () => {
