@@ -27,7 +27,7 @@ const AccelerationCard = ({modalSize="full"}: any) => {
 
   const expandableContent = () => {
     return (
-      <Box width="full" height="250px" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
+      <Box width="full" height="350px" padding={4} backgroundColor="white" shadow={"md"} borderTop={2}>
         <AccelerationChart accelerationDir={accelerationDir} timeRange={value} />
       </Box>
     );
