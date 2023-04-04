@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards, Req, Inject, CACHE_MANAGER } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, Req, Res, Inject, CACHE_MANAGER, Body } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ApiBearerAuth, ApiBody, ApiCreatedResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { Cache } from 'cache-manager';
@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
+import { LiveService } from './live/live.service';
 import { LoginDto, UserDto } from './user/user.dto';
 
 @Controller()
@@ -14,6 +15,7 @@ import { LoginDto, UserDto } from './user/user.dto';
 export class AppController {
   constructor(
     private readonly appService: AppService,
+    private readonly liveService: LiveService,
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
@@ -21,6 +23,13 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Post()
+  async handleConnection(@Body() body) {
+    console.log("From live");
+    console.log(body);
+    await this.liveService.handle(body);
   }
 
   @Post('auth/login')
