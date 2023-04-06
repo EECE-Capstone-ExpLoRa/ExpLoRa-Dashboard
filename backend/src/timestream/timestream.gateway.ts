@@ -1,10 +1,39 @@
-import { OnModuleInit } from "@nestjs/common";
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server } from "socket.io"
-import { TimestreamService } from "./../timestream/timestream.service";
+import { OnModuleInit } from '@nestjs/common';
+import {
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server } from 'socket.io';
+import { TimestreamService } from './../timestream/timestream.service';
 let tick = 0;
 
-@WebSocketGateway({namespace: '/socket/timestream'})
+type TimedPayload = {
+  timestamp: number;
+  acceleration_x: number;
+  acceleration_y: number;
+  acceleration_z: number;
+  altitude: number;
+  ambient_humidity: number;
+  ambient_temperature: number;
+  latitude: number;
+  longitude: number;
+  mass_concentration_pm10p0: number;
+  mass_concentration_pm1p0: number;
+  mass_concentration_pm2p5: number;
+  mass_concentration_pm4p0: number;
+  pitch: number;
+  pressure: number;
+  roll: number;
+  speed: number;
+  temperature: number;
+  time: number;
+  voc_index: number;
+  yaw: number;
+};
+
+@WebSocketGateway({ namespace: '/socket/timestream' })
 export class TimestreamGateway implements OnModuleInit {
   constructor(private readonly timestreamService: TimestreamService) {}
 
@@ -12,89 +41,31 @@ export class TimestreamGateway implements OnModuleInit {
   server: Server;
 
   onModuleInit() {
-    this.server.on('connection', (_socket) => {
- 
-    })
+    this.server.on('connection', (_socket) => {});
   }
 
-  // Handle incoming events from the client here
-  @SubscribeMessage('connect_to_device') 
-  async handleMessage(@MessageBody() message: {deviceEui: string, measureName: string}): Promise<void> {
-    setInterval(async() => {
-      const {deviceEui, measureName} = message
-      const now = new Date()
-      const old = new Date(now.getTime() - 1000)
+  @SubscribeMessage('data_forwarded')
+  async handleDataStream(
+    @MessageBody() message: { deviceEui: string; data: TimedPayload },
+  ) {
+    const { deviceEui, data } = message;
 
-      const filterDto = {
-        minTime: old.getTime().toString(),
-        maxTime: now.getTime().toString()
+    this.emitDatapoints(deviceEui, data);
+  }
+
+  emitDatapoints(deviceEui: string, data: TimedPayload) {
+    if (data) {
+      for (const key of Object.keys(data)) {
+        const event = `${deviceEui}:${key}`;
+        const datapoint = {
+          timestamp: data.timestamp,
+          value: data[key],
+        };
+        this.server.emit(event, {
+          name: tick++,
+          datapoint: datapoint,
+        });
       }
-
-      let data;
-      let res = await this.timestreamService.getDeviceData(measureName, deviceEui, filterDto)
-
-      switch(measureName) {
-        case "accelerations": 
-          data = await this.timestreamService.getAllAccelerations(deviceEui, filterDto)
-        break;
-
-        //TODO: remove redundant cases
-        case "acceleration_x":
-          data = res
-        break;
-
-        case "acceleration_y": 
-          data = res
-        break;
-
-        case "acceleration_z":
-          data = res
-        break;
-
-        case "yaw": 
-          data = res
-        break;
-
-        case "pitch":
-          data = res
-        break;
-        
-        case "latitude":
-          data = res.pop()
-        break;
-
-        case "longitude":
-          data = res.pop()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-
-        case "altitude":
-          data = res
-        break;
-
-        case "speed":
-          data = res
-        break;
-
-        case "pressure":
-          data = res
-        break;
-
-        case "temperature":
-          data = res
-        break;  
-
-        case "voc_index":
-          data = res
-        break;
-
-        default: 
-          data = res
-        break;
-      }
-
-      this.server.emit(measureName, {
-        name: tick++,
-        values: data
-      })
-    }, 1000)
+    }
   }
 }

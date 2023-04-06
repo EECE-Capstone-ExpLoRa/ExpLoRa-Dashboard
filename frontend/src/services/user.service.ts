@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createUserObject } from "../utils/createUser.dto";
 import { deviceResponse } from "../utils/devices.dto";
+import { updateUserObject } from "../utils/updateUser.dto";
 import { loginResponse } from "../utils/loginResponse.dto";
 import { loginUserObject } from "../utils/loginUser.dto";
 import { userResponseObject } from "../utils/userResponse.dto";
@@ -16,6 +17,11 @@ export const login = async(user: loginUserObject) => {
     const res = await exploraApi.post('/auth/login', user);
     const accessToken: loginResponse = res.data;
     return accessToken;
+};
+
+export const update = async(updateUser: updateUserObject) => {
+    const res = await exploraApi.put('/users', updateUser);
+    return res.data;
 };
 
 export const logout = async () => {
@@ -49,7 +55,7 @@ export const deleteDeviceFromUser = async (deviceEui: string) => {
   const res = await exploraApi.delete(`/users/devices/${deviceEui}`);
   const deletedDevice = res.data;
   return deletedDevice;
-}
+};
 
 export const updateUserDevices =async (devicesToUpdate:Map<string, {[key: string]: string}>) => {
     type updateManyDevices = {
@@ -81,4 +87,4 @@ export const updateUserDevices =async (devicesToUpdate:Map<string, {[key: string
     } catch(error) {
         return error;
     }
-}
+};
