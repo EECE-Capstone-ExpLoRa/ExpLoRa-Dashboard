@@ -30,8 +30,9 @@ import {
 import { AirQuality, TimestreamSocketResponse } from "../../utils/types";
 import { getSocket } from "../../services/socket.service";
 import { getEventName, getRecentData } from "../../utils/utils";
+import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const AirQualityCard = ({ modalSize = "xl" }: any) => {
+const AirQualityCard = ({modalSize, eui}: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [airQualityType, setAirQualityType] = useState<string>(
     AirQuality.PM_1P0
@@ -71,6 +72,8 @@ const AirQualityCard = ({ modalSize = "xl" }: any) => {
         <option value={AirQuality.Humidity}>Ambient Humidity</option>
         <option value={AirQuality.Temperature}>Ambient Temperature</option>
         <option value={AirQuality.VOC}>VOC Index</option>
+        <option value={eui}>{eui}</option>
+
       </Select>
     );
   };

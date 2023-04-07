@@ -6,7 +6,7 @@ import { Box, Button, Flex, FormControl,
     ModalOverlay, Select, Tooltip, useDisclosure, 
     useToast, VStack } from "@chakra-ui/react"
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { queryClient } from "../..";
 import { deleteDeviceFromUser, fetchUserDevices, registerNewDevice, updateUserDevices } from "../../services/user.service";
 
@@ -15,7 +15,7 @@ type updateDeviceType = {
     type?: string
 }; 
 
-const DashboardFooter = () => {
+const DashboardFooter = ({onDeviceEuiChange}: any) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [deviceEui, setDeviceEui] = useState('');
     const [deviceChanges, setdeviceChanges] = useState<Map<string, updateDeviceType>>(new Map<string, updateDeviceType>());
@@ -29,6 +29,12 @@ const DashboardFooter = () => {
         queryKey: ['userDevices'],
         queryFn: fetchUserDevices
     });
+
+    useEffect(() => {
+        if (devices.data && devices.data.length > 0) {
+            onDeviceEuiChange(devices.data[selectedIndex].device_eui);
+        }
+    })
 
     // Hanndles toast error or success notification depending on Mutation callback
     const handleMutationCallback = (title: string, isSuccess: boolean, ) => {
@@ -164,6 +170,7 @@ const DashboardFooter = () => {
         isActive={selectedIndex === index}
         onClick={() => {
             setSelectedIndex(index);
+            // onDeviceEuiChange(device.device_eui);
         }}>
             {device.nickname? device.nickname: device.device_eui} 
         </Button>

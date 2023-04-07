@@ -4,8 +4,9 @@ import ExpandableCard from "../ExpandableCard";
 import { getSocket } from "../../services/socket.service";
 import { GeoData } from "../../utils/types";
 import { getEventName } from "../../utils/utils";
+import { DashboardProp } from "../../utils/dashboardProps";
 
-const Map = () => {
+const Map = ({eui}: DashboardProp) => {
   const [lat, setLat] = useState(0);
   const [lng, setLng] = useState(0);
 
@@ -13,6 +14,10 @@ const Map = () => {
     height: "225px",
     width: "full",
   };
+
+  useEffect(() => {
+    console.log(`EUI in Map: ${eui}`);
+  });
 
   useEffect(() => {
     const socket = getSocket();

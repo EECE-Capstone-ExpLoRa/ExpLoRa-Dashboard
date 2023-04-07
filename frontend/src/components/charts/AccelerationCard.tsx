@@ -44,8 +44,9 @@ import {
 } from "../../utils/types";
 import { getSocket } from "../../services/socket.service";
 import { getEventName, getRecentData } from "../../utils/utils";
+import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const AccelerationCard = ({ modalSize = "full" }: any) => {
+const AccelerationCard = ({modalSize, eui}: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [accelerationDir, setAccelerationDir] = useState<string>(
     AccelerationDirection.X

@@ -1,4 +1,4 @@
-import { Box, Grid, GridItem } from "@chakra-ui/react";
+import { Box, Grid, GridItem, Heading } from "@chakra-ui/react";
 import PressureChart from "../charts/PressureChart";
 import AccelerationCard from "../charts/AccelerationCard";
 import TemperatureCard from "../charts/TemperatureCard";
@@ -7,11 +7,11 @@ import AirQualityCard from "../charts/AirQualityCard";
 import AircraftMotionCard from "../charts/AircraftMotionChart";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { fetchCurrentUser } from "../../services/user.service";
+import { fetchCurrentUser, fetchUserDevices } from "../../services/user.service";
 import { useEffect } from "react";
-import DashboardFooter from "./DashboardFooter";
+import { DashboardProp } from "../../utils/dashboardProps";
 
-const Dashboard = () => {
+const Dashboard = ({eui}: DashboardProp) => {
   const navigate = useNavigate();  
   const user = useQuery({
     queryKey: ['currentUser'],
@@ -19,7 +19,13 @@ const Dashboard = () => {
     retry: false
   });
 
+  const devices = useQuery({
+    queryKey: ['userDevices'],
+    queryFn: fetchUserDevices
+});
+
   useEffect(() => {
+    console.log(eui)
     const goToHomePage = () =>{
       navigate('/signin');
     };
@@ -28,9 +34,21 @@ const Dashboard = () => {
     }
   });
 
-  if (user.isLoading) {
+  if (devices.isError) {
+    return <span>An Error Occurred</span>
+  }
+
+  if (user.isLoading || devices.isLoading) {
     return <span>Loading...</span>
   }
+
+  if (devices.data.length === 0) {
+    return (
+      <Box display='flex' justifyContent='center' alignItems='center' height='100vh'>
+        <Heading>No devices registered yet, consider adding a device below</Heading>
+      </Box>
+    );
+  };
 
   return (
     <Box backgroundColor="gray.100">
@@ -43,25 +61,24 @@ const Dashboard = () => {
         paddingY={4}
       >
         <GridItem rowSpan={1} colSpan={1}>
-          <AirQualityCard />
+          <AirQualityCard modalSize="xl" eui={eui} />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <Map />
+          <Map eui={eui} />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <AccelerationCard />
+          <AccelerationCard modalSize="full" eui={eui} />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <PressureChart />
+          <PressureChart modalSize="full" eui={eui} />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <TemperatureCard />
+          <TemperatureCard modalSize="full" eui={eui} />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <AircraftMotionCard />
+          <AircraftMotionCard modalSize="full" eui={eui}  />
         </GridItem>
       </Grid>
-        <DashboardFooter />
     </Box>
   );
 };

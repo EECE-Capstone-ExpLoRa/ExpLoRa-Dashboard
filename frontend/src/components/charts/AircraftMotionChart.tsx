@@ -29,8 +29,9 @@ import {
 import { AircraftAxis, TimestreamSocketResponse } from "../../utils/types";
 import { getEventName, getRecentData } from "../../utils/utils";
 import { getSocket } from "../../services/socket.service";
+import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const AircraftMotionCard = ({ modalSize = "full" }: any) => {
+const AircraftMotionCard = ({modalSize, eui}: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [axis, setAxis] = useState<string>(AircraftAxis.Yaw);
 

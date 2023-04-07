@@ -29,8 +29,9 @@ import {
 import { getSocket } from "../../services/socket.service";
 import { TimestreamSocketResponse } from "../../utils/types";
 import { getEventName, getRecentData } from "../../utils/utils";
+import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const PressureCard = ({ modalSize = "full" }): ReactElement => {
+const PressureCard = ({modalSize, eui}: TelemetryCardProps): ReactElement => {
   const [open, setOpen] = useState(true);
   const {
     isOpen: isModalOpen,
