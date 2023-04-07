@@ -9,7 +9,7 @@ import theme from './utils/theme';
 import NoMatch from './components/NoMatch';
 import Dashboard from './components/dashboard/Dashboard';
 import NavBar from './components/NavBar';
-import Profile from './components/dashboard/Profile';
+import Profile from './components/Profile';
 import './components/dashboard/dashboard.css';
 
 function App() {
