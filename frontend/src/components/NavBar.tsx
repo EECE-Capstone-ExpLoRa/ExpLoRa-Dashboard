@@ -42,7 +42,7 @@ const NavBar = () => {
     await logout();
     exploraApi.defaults.headers.common.Authorization = undefined; 
     queryClient.removeQueries({queryKey: ['userDevices']});
-    queryClient.refetchQueries({queryKey: ['currentUser']});
+    queryClient.resetQueries({queryKey: ['currentUser']});
   };
   
   return (
