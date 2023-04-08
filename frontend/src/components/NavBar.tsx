@@ -41,8 +41,9 @@ const NavBar = () => {
   const handleLogout = async () => {
     await logout();
     exploraApi.defaults.headers.common.Authorization = undefined; 
+    queryClient.removeQueries({queryKey: ['userDevices']});
     queryClient.refetchQueries({queryKey: ['currentUser']});
-  }
+  };
   
   return (
     <Flex direction='row' justifyContent='space-between' alignItems='center'>

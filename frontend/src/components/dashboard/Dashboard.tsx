@@ -25,11 +25,11 @@ const Dashboard = ({eui}: DashboardProp) => {
 });
 
   useEffect(() => {
-    console.log(eui)
+    console.log(eui);
     const goToHomePage = () =>{
       navigate('/signin');
     };
-    if (user.isError) {
+    if (!user.data && user.isError) {
       goToHomePage();
     }
   });
