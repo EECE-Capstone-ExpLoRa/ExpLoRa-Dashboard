@@ -25,7 +25,6 @@ const Dashboard = ({eui}: DashboardProp) => {
 });
 
   useEffect(() => {
-    console.log(eui);
     const goToHomePage = () =>{
       navigate('/signin');
     };

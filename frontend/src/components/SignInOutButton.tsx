@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 const SignInOutButton = (props: {linkTo: string, buttonText: string}) => {
     return (
         <Link to={props.linkTo}>
-            <Button variant='outline' border='2px' borderColor='test2.100' borderRadius='lg' marginRight='12px'>
+            <Button variant='outline' border='2px' borderColor='brand.100' borderRadius='lg' marginRight='12px'>
                 {props.buttonText}
             </Button>
         </Link>

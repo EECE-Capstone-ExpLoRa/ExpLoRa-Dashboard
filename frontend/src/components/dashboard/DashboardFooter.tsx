@@ -165,7 +165,7 @@ const DashboardFooter = ({onDeviceEuiChange}: any) => {
         <Button 
         key={device.device_eui} 
         _active={{
-            borderBottom:`4px solid #3545a4`
+            borderBottom:`4px solid #2A0B42`
         }}
         isActive={selectedIndex === index}
         onClick={() => {

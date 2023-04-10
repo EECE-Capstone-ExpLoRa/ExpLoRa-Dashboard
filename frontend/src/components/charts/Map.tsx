@@ -16,10 +16,6 @@ const Map = ({eui}: DashboardProp) => {
   };
 
   useEffect(() => {
-    console.log(`EUI in Map: ${eui}`);
-  });
-
-  useEffect(() => {
     const socket = getSocket();
 
     socket.on(getEventName(GeoData.Latitude), (res) => {

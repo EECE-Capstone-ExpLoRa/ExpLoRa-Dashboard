@@ -54,13 +54,13 @@ const LogIn = () => {
     }}
     >
       {formik => (
-            <Flex bg='test2.100' align='center' justify='center' h='100vh'>
+            <Flex bg='brand.100' align='center' justify='center' h='100vh'>
             <Box bg='white' p={10} rounded='md' w='25%'>
              <form onSubmit={formik.handleSubmit}>
                <VStack spacing={4} align='flex-start'>
                  <FormInputField label='Username' required={true} id='username' name='username' type='text' variant='filled'/>
                  <FormInputField label='Password' required={true} id='password' name='password' type='password' variant='filled'/>
-                 <Button type="submit" colorScheme="test2" width="full" color='white'>Log In</Button>
+                 <Button type="submit" colorScheme="brand" width="full">Log In</Button>
                  <Link to="/register">Don't have an account yet?</Link>
                </VStack>
              </form>

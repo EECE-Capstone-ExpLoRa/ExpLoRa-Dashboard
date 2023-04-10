@@ -12,16 +12,16 @@ const NavBar = () => {
     queryKey: ['currentUser'],
     queryFn: fetchCurrentUser,
     retry: false
-  }); // I think maybe but this in root directory? and then get data here through queryClient?
+  });
 
   if (user.isError) {
     return (
-      <Flex direction='row' justifyContent='space-between' alignItems='center'>
+      <Flex direction='row' justifyContent='space-between' alignItems='center' backgroundColor='brand.300'>
       <Flex>
         <Link to="/">
-          <Flex paddingX={6} marginY={6}>
-              <Image src="/ExpLoRa@2x.png" height={7}/>
-            </Flex>
+          <Flex margin='14px 0px' padding='0px 8px'>
+            <Image src="/Explora-Name.svg" height='16' />
+          </Flex>
         </Link>
       </Flex>
       <Flex>

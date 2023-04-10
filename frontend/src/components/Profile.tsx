@@ -27,7 +27,6 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    console.log('In use effect');
     const goToHomePage = () =>{
       navigate('/signin');
     };
@@ -75,7 +74,6 @@ const Profile = () => {
       password: Yup.string().min(8, 'Password must be at least 8 characters long'),
     })}
     onSubmit={async (values, action) => {
-      console.log('Being submitted');
       let updateUser: updateUserObject = {}
       if (values.email.trim() !== "") updateUser.newEmail = values.email;
       if (values.username.trim() !== "") updateUser.newUsername = values.username;
@@ -85,14 +83,14 @@ const Profile = () => {
     }}
     >
       {formik => (
-          <Flex bg='test2.100' align='center' justify='center' h='100vh'>
+          <Flex bg='brand.100' align='center' justify='center' h='100vh'>
           <Box bg='white' p={10} rounded='md' w='25%'>
               <form onSubmit={formik.handleSubmit}>
                 <VStack spacing={4} align='flex-start'>
                   <FormInputField label='New Email Address' required={false} id='email' name='email' type='email' placeholder={userInfo.data.email}/>
                   <FormInputField label='New Username' required={false} id='username' name='username' type='text' placeholder={userInfo.data.username}/>
                   <FormInputField label='New Password' required={false} id='password' name='password' type='password'/>
-                  <Button type="submit" colorScheme='test2' color='black' width="full">Update Profile</Button>
+                  <Button type="submit" colorScheme='brand' width="full">Update Profile</Button>
                 </VStack>
               </form>
             </Box>
