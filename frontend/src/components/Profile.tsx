@@ -83,8 +83,8 @@ const Profile = () => {
     }}
     >
       {formik => (
-          <Flex bg='brand.100' align='center' justify='center' h='100vh'>
-          <Box bg='white' p={10} rounded='md' w='25%'>
+          <Flex bg='gray.100' align='center' justify='center' h='100vh'>
+          <Box bg='white' p={10} rounded='md' w='25%' >
               <form onSubmit={formik.handleSubmit}>
                 <VStack spacing={4} align='flex-start'>
                   <FormInputField label='New Email Address' required={false} id='email' name='email' type='email' placeholder={userInfo.data.email}/>

@@ -5,7 +5,7 @@ const Theme = extendTheme({
         brand: {
             100: '#2A0B42', //Purple
             300: '#DAD7DB', //White
-            500: '#F8CD51',
+            500: '#2A0B42',
         },
     }
 });

@@ -5,7 +5,7 @@ import React from "react";
 
 const Home = () => {
   return (
-      <Flex direction='column' align='center' justify='flex-start' backgroundColor='brand.100' h='100vh' textColor='brand.300'>
+      <Flex direction='column' align='center' justify='flex-start' backgroundColor='gray.100' h='100vh' textColor='brand.500'>
         <Box marginTop='12px' fontSize='2xl' padding='8px'>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
           Viverra mauris in aliquam sem fringilla. Purus in massa tempor nec. Magna fringilla urna porttitor rhoncus. 

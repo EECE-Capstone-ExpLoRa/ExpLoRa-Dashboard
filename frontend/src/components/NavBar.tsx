@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { queryClient } from "..";
 import exploraApi from "../services/api";
 import { fetchCurrentUser, logout } from "../services/user.service";
-import SignInOutButton from "./SignInOutButton";
 
 const NavBar = () => {
   
@@ -16,7 +15,7 @@ const NavBar = () => {
 
   if (user.isError) {
     return (
-      <Flex direction='row' justifyContent='space-between' alignItems='center' backgroundColor='brand.300'>
+      <Flex direction='row' justifyContent='space-between' alignItems='center' >
       <Flex>
         <Link to="/">
           <Flex margin='14px 0px' padding='0px 8px'>
@@ -25,8 +24,23 @@ const NavBar = () => {
         </Link>
       </Flex>
       <Flex>
-          <SignInOutButton linkTo='/signin' buttonText='Sign In'/>
-          <SignInOutButton linkTo='/register' buttonText='Register'/>
+        <Link to='/signin'>
+          <Flex alignItems='center' padding='12px'> 
+          Login <Image src='/logout-svgrepo-com.svg' padding='5px' paddingRight='12px' height={7}/>
+          </Flex>
+        </Link>
+        
+        <Link to='/register'>
+          <Flex 
+          alignItems='center' 
+          padding='14px' 
+          backgroundColor='brand.100' 
+          textColor='white' 
+          marginRight='12px' 
+          borderRadius='3xl' > 
+          Get Started
+          </Flex>
+        </Link>
       </Flex>
     </Flex>
     )
@@ -46,11 +60,11 @@ const NavBar = () => {
   };
   
   return (
-    <Flex direction='row' justifyContent='space-between' alignItems='center'>
+    <Flex direction='row' justifyContent='space-between' alignItems='center' >
       <Flex>
         <Link to="/dashboard">
-          <Flex paddingX={6} marginY={6}>
-              <Image src="/ExpLoRa@2x.png" height={7}/>
+        <Flex margin='14px 0px' padding='0px 8px' >
+            <Image src="/Explora-Name.svg" height='16' />
           </Flex>
         </Link>
       </Flex>
