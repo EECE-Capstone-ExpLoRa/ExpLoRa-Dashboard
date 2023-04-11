@@ -32,7 +32,7 @@ import { getSocket } from "../../services/socket.service";
 import { getEventName, getRecentData } from "../../utils/utils";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const AirQualityCard = ({ modalSize, eui }: TelemetryCardProps) => {
+const AirQualityCard = ({ modalSize, eui, isLive }: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [airQualityType, setAirQualityType] = useState<string>(
     AirQuality.PM_1P0

@@ -1,25 +1,62 @@
 import exploraApi from "./api";
 
-export const getAcceleration = async(deviceEui: string, minTime: number, maxTime: number) => {
-  const res = await exploraApi.get(`/timestream/${deviceEui}/accelerations?minTime=${minTime}&maxTime=${maxTime}`)
+export const getAcceleration = async (
+  deviceEui: string,
+  minTime: number,
+  maxTime: number
+) => {
+  const res = await exploraApi.get(
+    `/timestream/${deviceEui}/accelerations?minTime=${minTime}&maxTime=${maxTime}`
+  );
 
   return res.data;
 };
 
-export const getAccelerationX = async (deviceEui: string, minTime: number, maxTime: number) => {
-  const res = await exploraApi.get(`/timestream/${deviceEui}/Acceleration%20X?minTime=${minTime}&maxTime=${maxTime}`)
+export const getData = async (
+  deviceEui: string,
+  measureName: string,
+  minTime: number,
+  maxTime: number
+) => {
+  const res = await exploraApi.get(
+    `/timestream/${deviceEui}/${measureName}?minTime=${minTime}&maxTime=${maxTime}`
+  );
 
   return res.data;
 };
 
-export const getAccelerationY = async (deviceEui: string, minTime: number, maxTime: number) => {
-  const res = await exploraApi.get(`/timestream/${deviceEui}/Acceleration%20Y?minTime=${minTime}&maxTime=${maxTime}`)
+export const getAccelerationX = async (
+  deviceEui: string,
+  minTime: number,
+  maxTime: number
+) => {
+  const res = await exploraApi.get(
+    `/timestream/${deviceEui}/acceleration_x?minTime=${minTime}&maxTime=${maxTime}`
+  );
 
   return res.data;
 };
 
-export const getAccelerationZ = async (deviceEui: string, minTime: number, maxTime: number) => {
-  const res = await exploraApi.get(`/timestream/${deviceEui}/Acceleration%20Z?minTime=${minTime}&maxTime=${maxTime}`)
+export const getAccelerationY = async (
+  deviceEui: string,
+  minTime: number,
+  maxTime: number
+) => {
+  const res = await exploraApi.get(
+    `/timestream/${deviceEui}/acceleration_y?minTime=${minTime}&maxTime=${maxTime}`
+  );
+
+  return res.data;
+};
+
+export const getAccelerationZ = async (
+  deviceEui: string,
+  minTime: number,
+  maxTime: number
+) => {
+  const res = await exploraApi.get(
+    `/timestream/${deviceEui}/acceleration_z?minTime=${minTime}&maxTime=${maxTime}`
+  );
 
   return res.data;
 };

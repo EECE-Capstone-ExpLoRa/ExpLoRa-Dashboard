@@ -1,8 +1,12 @@
 export type DashboardProp = {
-    eui: string,
+  eui: string;
+  isLive?: boolean;
+  timeRange: Date[];
 };
 
 export type TelemetryCardProps = {
-    modalSize: string,
-    eui: string,
+  isLive?: boolean;
+  modalSize: string;
+  eui: string;
+  timeRange: Date[];
 };
