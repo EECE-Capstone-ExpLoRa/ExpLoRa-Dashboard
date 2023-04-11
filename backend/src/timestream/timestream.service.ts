@@ -11,24 +11,24 @@ type AccelerationsResponse = {
 
 @Injectable()
 export class TimestreamService {
-    //private queryClient: TimestreamQueryClient = new TimestreamQueryClient({region: "us-east-1"});
+    private queryClient: TimestreamQueryClient = new TimestreamQueryClient({region: "us-east-1"});
 
     private readonly dbTable = 'TestDatabase.ExploraNew';
 
-    // private async handleQuery(queryRequest: string) {
-    //     const queryRequestParams: QueryCommandInput = {
-    //         QueryString: queryRequest
-    //     };
+    private async handleQuery(queryRequest: string) {
+        const queryRequestParams: QueryCommandInput = {
+            QueryString: queryRequest
+        };
 
-    //     const queryCommand: QueryCommand = new QueryCommand(queryRequestParams);
-    //     try {
-    //         const response: QueryCommandOutput = await this.queryClient.send(queryCommand);
-    //         return response;
-    //     }
-    //     catch(error) {
-    //         throw new BadRequestException(String(error));
-    //     }
-    // }
+        const queryCommand: QueryCommand = new QueryCommand(queryRequestParams);
+        try {
+            const response: QueryCommandOutput = await this.queryClient.send(queryCommand);
+            return response;
+        }
+        catch(error) {
+            throw new BadRequestException(String(error));
+        }
+    }
 
     async getDeviceData(measureName: string, deviceEui: string, filterDto: FilterDto) {
         return [];
@@ -126,14 +126,14 @@ export class TimestreamService {
             */
 
     async getEuis() {
-        return [];
-        // const queryRequest: string = `SELECT DISTINCT device_eui FROM ${this.dbTable}`;
-        // const queryResponse = await this.handleQuery(queryRequest);
-        // const rows = queryResponse.Rows;
-        // const euis = [];
-        // rows.forEach(row => euis.push(row.Data[0].ScalarValue));
+        // return [];
+        const queryRequest: string = `SELECT DISTINCT device_eui FROM ${this.dbTable}`;
+        const queryResponse = await this.handleQuery(queryRequest);
+        const rows = queryResponse.Rows;
+        const euis = [];
+        rows.forEach(row => euis.push(row.Data[0].ScalarValue));
 
-        // return euis;
+        return euis;
     }
 
     async getDeviceMeasures(deviceEui: string): Promise<string[]> {
