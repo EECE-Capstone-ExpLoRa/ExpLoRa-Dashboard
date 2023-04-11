@@ -11,7 +11,9 @@ type AccelerationsResponse = {
 
 @Injectable()
 export class TimestreamService {
-    private queryClient: TimestreamQueryClient = new TimestreamQueryClient({region: "us-east-1"});
+    private queryClient: TimestreamQueryClient = new TimestreamQueryClient({
+        region: "us-east-1"
+    });
 
     private readonly dbTable = 'TestDatabase.ExploraNew';
 
