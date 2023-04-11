@@ -14,7 +14,7 @@ import {
 import { useEffect } from "react";
 import { DashboardProp } from "../../utils/dashboardProps";
 
-const Dashboard = ({ eui }: DashboardProp) => {
+const Dashboard = ({ eui, isLive, timeRange }: DashboardProp) => {
   const navigate = useNavigate();
   const user = useQuery({
     queryKey: ["currentUser"],
@@ -70,22 +70,42 @@ const Dashboard = ({ eui }: DashboardProp) => {
         paddingY={4}
       >
         <GridItem rowSpan={1} colSpan={1}>
-          <AirQualityCard modalSize="full" eui={eui} />
+          <AirQualityCard modalSize="full" eui={eui} timeRange={timeRange} />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <Map eui={eui} />
+          <Map eui={eui} timeRange={timeRange} />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <AccelerationCard modalSize="full" eui={eui} />
+          <AccelerationCard
+            modalSize="full"
+            eui={eui}
+            isLive={isLive}
+            timeRange={timeRange}
+          />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <PressureChart modalSize="full" eui={eui} />
+          <PressureChart
+            modalSize="full"
+            eui={eui}
+            isLive={isLive}
+            timeRange={timeRange}
+          />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <TemperatureCard modalSize="full" eui={eui} />
+          <TemperatureCard
+            modalSize="full"
+            eui={eui}
+            isLive={isLive}
+            timeRange={timeRange}
+          />
         </GridItem>
         <GridItem rowSpan={1} colSpan={1}>
-          <AircraftMotionCard modalSize="full" eui={eui} />
+          <AircraftMotionCard
+            modalSize="full"
+            eui={eui}
+            isLive={isLive}
+            timeRange={timeRange}
+          />
         </GridItem>
       </Grid>
     </Box>

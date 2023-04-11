@@ -21,19 +21,25 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   AreaChart,
   Area,
 } from "recharts";
 import { getSocket } from "../../services/socket.service";
 import { TimestreamSocketResponse } from "../../utils/types";
-import { getEventName, getRecentData } from "../../utils/utils";
+import {
+  getEventName,
+  getRecentData,
+  getRocketTestingDateTimes,
+} from "../../utils/utils";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
+import { getData } from "../../services/timestream.service";
 
 const TemperatureCard = ({
   modalSize,
   eui,
+  isLive,
+  timeRange,
 }: TelemetryCardProps): ReactElement => {
   const [open, setOpen] = useState(true);
   const {
@@ -52,7 +58,11 @@ const TemperatureCard = ({
         shadow={"md"}
         borderTop={2}
       >
-        <TemperatureChart deviceEui={eui} />
+        <TemperatureChart
+          deviceEui={eui}
+          isLive={isLive}
+          timeRange={timeRange}
+        />
       </Box>
     );
   };
@@ -117,7 +127,11 @@ const TemperatureCard = ({
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <TemperatureChart deviceEui={eui} />
+              <TemperatureChart
+                deviceEui={eui}
+                isLive={isLive}
+                timeRange={timeRange}
+              />
             </Box>
           </ModalBody>
           <ModalFooter>
@@ -133,27 +147,44 @@ const TemperatureCard = ({
 
 const TemperatureChart = ({
   deviceEui,
+  isLive,
+  timeRange,
 }: {
   deviceEui: string;
+  isLive?: boolean;
+  timeRange: Date[];
 }): ReactElement => {
   const [temperatureData, setTemperatureData] =
     useState<TimestreamSocketResponse>([]);
+  const [temperatureHistory, setTemperatureHistory] = useState([]);
+  const [minTimeQueryParam, maxTimeQueryParam] = timeRange;
 
   useEffect(() => {
-    const socket = getSocket();
-    socket.on(getEventName(deviceEui, "temperature"), (res) => {
-      setTemperatureData((oldData) => {
-        let allData = [...oldData, res.datapoint];
+    if (isLive) {
+      const socket = getSocket();
+      socket.on(getEventName(deviceEui, "temperature"), (res) => {
+        setTemperatureData((oldData) => {
+          let allData = [...oldData, res.datapoint];
 
-        return getRecentData(allData);
+          return getRecentData(allData);
+        });
       });
-    });
-  }, [deviceEui]);
+    } else {
+      getData(
+        deviceEui,
+        "temperature",
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setTemperatureHistory(res);
+      });
+    }
+  }, [deviceEui, isLive]);
 
   return (
     <ResponsiveContainer height={"100%"}>
       <AreaChart
-        data={temperatureData}
+        data={isLive ? temperatureData : temperatureHistory}
         margin={{
           top: 10,
           right: 30,

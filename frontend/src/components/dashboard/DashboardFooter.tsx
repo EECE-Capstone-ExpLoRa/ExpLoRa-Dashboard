@@ -4,6 +4,7 @@ import {
   DeleteIcon,
   EditIcon,
   HamburgerIcon,
+  TimeIcon,
 } from "@chakra-ui/icons";
 import {
   Box,
@@ -21,12 +22,20 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverCloseButton,
+  PopoverBody,
   Select,
+  Switch,
   Tooltip,
   useDisclosure,
   useToast,
   VStack,
 } from "@chakra-ui/react";
+// @ts-ignore
+import DateTimeRangePicker from "@wojtekmaj/react-datetimerange-picker";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryClient } from "../..";
@@ -42,7 +51,13 @@ type updateDeviceType = {
   type?: string;
 };
 
-const DashboardFooter = ({ onDeviceEuiChange }: any) => {
+const DashboardFooter = ({
+  onDeviceEuiChange,
+  onToggleLive,
+  isLive,
+  onDatePickerChange,
+  datePickerValue,
+}: any) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [deviceEui, setDeviceEui] = useState("");
   const [deviceChanges, setdeviceChanges] = useState<
@@ -347,16 +362,59 @@ const DashboardFooter = ({ onDeviceEuiChange }: any) => {
 
   // Dashboard footer being returned
   return (
-    <Flex position="fixed" bottom="0" width="100%" margin="12px">
-      {deviceButtons}
-      <Button leftIcon={<AddIcon />} onClick={addDevicesModal.onOpen}>
-        Add device
-      </Button>
-      {addDeviceModal}
-      <Button leftIcon={<EditIcon />} onClick={editDevicesModal.onOpen}>
-        Edit Devices
-      </Button>
-      {editDeviceModal}
+    <Flex
+      position="fixed"
+      bottom="0"
+      width="100%"
+      margin="12px"
+      justifyContent="space-between"
+    >
+      <Box>
+        {deviceButtons}
+        <Button leftIcon={<AddIcon />} onClick={addDevicesModal.onOpen}>
+          Add device
+        </Button>
+        {addDeviceModal}
+        <Button leftIcon={<EditIcon />} onClick={editDevicesModal.onOpen}>
+          Edit Devices
+        </Button>
+        {editDeviceModal}
+      </Box>
+      <Box>
+        {!isLive && (
+          <Popover placement="bottom-start">
+            <PopoverTrigger>
+              <TimeIcon />
+            </PopoverTrigger>
+            <PopoverContent width="425px">
+              <PopoverCloseButton />
+              <PopoverBody>
+                <DateTimeRangePicker
+                  onChange={onDatePickerChange}
+                  value={datePickerValue}
+                  closeWidgets={false}
+                  clearIcon={null}
+                  calendarIcon={null}
+                />
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+        )}
+        <Switch
+          onChange={() => {
+            onToggleLive(!isLive);
+          }}
+          defaultChecked={isLive}
+          textColor={"brand.500"}
+          fontWeight={600}
+          alignSelf="center"
+          colorScheme="brand"
+          paddingRight="100px"
+          paddingLeft="10px"
+        >
+          Live Data
+        </Switch>
+      </Box>
     </Flex>
   );
 };

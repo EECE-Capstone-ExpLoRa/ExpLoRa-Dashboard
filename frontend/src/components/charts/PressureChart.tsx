@@ -27,10 +27,20 @@ import {
 } from "recharts";
 import { getSocket } from "../../services/socket.service";
 import { TimestreamSocketResponse } from "../../utils/types";
-import { getEventName, getRecentData } from "../../utils/utils";
+import {
+  getEventName,
+  getRecentData,
+  getRocketTestingDateTimes,
+} from "../../utils/utils";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
+import { getData } from "../../services/timestream.service";
 
-const PressureCard = ({ modalSize, eui }: TelemetryCardProps): ReactElement => {
+const PressureCard = ({
+  modalSize,
+  eui,
+  isLive,
+  timeRange,
+}: TelemetryCardProps): ReactElement => {
   const [open, setOpen] = useState(true);
   const {
     isOpen: isModalOpen,
@@ -48,7 +58,7 @@ const PressureCard = ({ modalSize, eui }: TelemetryCardProps): ReactElement => {
         shadow={"md"}
         borderTop={2}
       >
-        <PressureChart deviceEui={eui} />
+        <PressureChart deviceEui={eui} isLive={isLive} timeRange={timeRange} />
       </Box>
     );
   };
@@ -113,7 +123,7 @@ const PressureCard = ({ modalSize, eui }: TelemetryCardProps): ReactElement => {
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <PressureChart deviceEui={eui} />
+              <PressureChart deviceEui={eui} timeRange={timeRange} />
             </Box>
           </ModalBody>
           <ModalFooter>
@@ -127,27 +137,49 @@ const PressureCard = ({ modalSize, eui }: TelemetryCardProps): ReactElement => {
   );
 };
 
-const PressureChart = ({ deviceEui }: { deviceEui: string }): ReactElement => {
+const PressureChart = ({
+  deviceEui,
+  isLive,
+  timeRange,
+}: {
+  deviceEui: string;
+  isLive?: boolean;
+  timeRange: Date[];
+}): ReactElement => {
   const [pressureData, setPressureData] = useState<TimestreamSocketResponse>(
     []
   );
+  const [pressureHistory, setPressureHistory] = useState([]);
+
+  const [minTimeQueryParam, maxTimeQueryParam] = timeRange;
 
   useEffect(() => {
-    const socket = getSocket();
+    if (isLive) {
+      const socket = getSocket();
 
-    socket.on(getEventName(deviceEui, "pressure"), (res) => {
-      setPressureData((oldData) => {
-        let allData = [...oldData, res.datapoint];
+      socket.on(getEventName(deviceEui, "pressure"), (res) => {
+        setPressureData((oldData) => {
+          let allData = [...oldData, res.datapoint];
 
-        return getRecentData(allData);
+          return getRecentData(allData);
+        });
       });
-    });
-  }, [deviceEui]);
+    } else {
+      getData(
+        deviceEui,
+        "pressure",
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setPressureHistory(res);
+      });
+    }
+  }, [deviceEui, isLive]);
 
   return (
     <ResponsiveContainer height={"100%"}>
       <AreaChart
-        data={pressureData}
+        data={isLive ? pressureData : pressureHistory}
         margin={{
           top: 10,
           right: 30,

@@ -8,3 +8,10 @@ export const getRecentData = (data: any[]) => {
 export const getEventName = (deviceEui: string, measure: string) => {
   return `${deviceEui}:${measure}`;
 };
+
+export const getRocketTestingDateTimes = () => {
+  const dt1 = new Date(2023, 3, 2, 12);
+  const dt2 = new Date(2023, 3, 2, 16);
+
+  return [dt1, dt2];
+};

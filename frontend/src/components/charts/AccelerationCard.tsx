@@ -11,11 +11,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Popover,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverTrigger,
   Select,
   Text,
   useDisclosure,
@@ -26,34 +21,31 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   LineChart,
   Line,
 } from "recharts";
 import moment from "moment";
-// @ts-ignore
-import DateTimeRangePicker from "@wojtekmaj/react-datetimerange-picker";
-import { TimeIcon } from "@chakra-ui/icons";
 import {
   AccelerationDirection,
-  TimestreamAccelerationsResponse,
   TimestreamSocketResponse,
 } from "../../utils/types";
 import { getSocket } from "../../services/socket.service";
 import { getEventName, getRecentData } from "../../utils/utils";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
+import { getData } from "../../services/timestream.service";
 
-const AccelerationCard = ({ modalSize, eui }: TelemetryCardProps) => {
+const AccelerationCard = ({
+  modalSize,
+  eui,
+  isLive,
+  timeRange,
+}: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [accelerationDir, setAccelerationDir] = useState<string>(
     AccelerationDirection.X
   );
-  const now = new Date();
-  const [value, onChange] = useState([
-    new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14),
-    now,
-  ]);
+
   const {
     isOpen: isModalOpen,
     onOpen: onModalOpen,
@@ -73,7 +65,8 @@ const AccelerationCard = ({ modalSize, eui }: TelemetryCardProps) => {
         <AccelerationChart
           deviceEui={eui}
           accelerationDir={accelerationDir}
-          timeRange={value}
+          timeRange={timeRange}
+          isLive={isLive}
         />
       </Box>
     );
@@ -89,30 +82,7 @@ const AccelerationCard = ({ modalSize, eui }: TelemetryCardProps) => {
         <option value={AccelerationDirection.X}>X</option>
         <option value={AccelerationDirection.Y}>Y</option>
         <option value={AccelerationDirection.Z}>Z</option>
-        <option value={AccelerationDirection.All}>All</option>
       </Select>
-    );
-  };
-
-  const renderDateTimeRangeSelector = () => {
-    return (
-      <Popover placement="bottom-start">
-        <PopoverTrigger>
-          <TimeIcon />
-        </PopoverTrigger>
-        <PopoverContent width="425px">
-          <PopoverCloseButton />
-          <PopoverBody>
-            <DateTimeRangePicker
-              onChange={onChange}
-              value={value}
-              closeWidgets={false}
-              clearIcon={null}
-              calendarIcon={null}
-            />
-          </PopoverBody>
-        </PopoverContent>
-      </Popover>
     );
   };
 
@@ -167,7 +137,6 @@ const AccelerationCard = ({ modalSize, eui }: TelemetryCardProps) => {
           </HStack>
           <HStack>
             {renderDirectionSelect("xs")}
-            {renderDateTimeRangeSelector()}
             {renderModalOpenButton()}
           </HStack>
         </Flex>
@@ -181,9 +150,10 @@ const AccelerationCard = ({ modalSize, eui }: TelemetryCardProps) => {
           <ModalBody>
             <Box height="600px">
               <AccelerationChart
+                isLive={isLive}
                 deviceEui={eui}
                 accelerationDir={accelerationDir}
-                timeRange={value}
+                timeRange={timeRange}
               />
             </Box>
             {renderDirectionSelect("sm")}
@@ -203,10 +173,12 @@ export const AccelerationChart = ({
   accelerationDir,
   timeRange,
   deviceEui,
+  isLive,
 }: {
   accelerationDir: string;
   timeRange: Date[];
   deviceEui: string;
+  isLive?: boolean;
 }) => {
   const [accelerationXData, setAccelerationXData] =
     useState<TimestreamSocketResponse>([]);
@@ -214,55 +186,103 @@ export const AccelerationChart = ({
     useState<TimestreamSocketResponse>([]);
   const [accelerationZData, setAccelerationZData] =
     useState<TimestreamSocketResponse>([]);
-  const [accelerationData, setAccelerationData] =
-    useState<TimestreamAccelerationsResponse>([]);
+
+  const [accelerationXHistory, setAccelerationXHistory] = useState([]);
+  const [accelerationYHistory, setAccelerationYHistory] = useState([]);
+  const [accelerationZHistory, setAccelerationZHistory] = useState([]);
+
   const [minTimeQueryParam, maxTimeQueryParam] = timeRange;
 
   useEffect(() => {
-    const socket = getSocket();
+    if (isLive) {
+      const socket = getSocket();
 
-    socket.on(getEventName(deviceEui, AccelerationDirection.X), (res: any) => {
-      setAccelerationXData((oldData) => {
-        console.log(res.datapoint);
-        let allData = [...oldData, res.datapoint];
+      socket.on(
+        getEventName(deviceEui, AccelerationDirection.X),
+        (res: any) => {
+          setAccelerationXData((oldData) => {
+            let allData = [...oldData, res.datapoint];
 
-        return getRecentData(allData);
+            return getRecentData(allData);
+          });
+        }
+      );
+
+      socket.on(
+        getEventName(deviceEui, AccelerationDirection.Y),
+        (res: any) => {
+          setAccelerationYData((oldData) => {
+            let allData = [...oldData, res.datapoint];
+
+            return getRecentData(allData);
+          });
+        }
+      );
+
+      socket.on(getEventName(deviceEui, AccelerationDirection.Z), (res) => {
+        setAccelerationZData((oldData) => {
+          let allData = [...oldData, res.datapoint];
+
+          return getRecentData(allData);
+        });
       });
-    });
-
-    socket.on(getEventName(deviceEui, AccelerationDirection.Y), (res: any) => {
-      setAccelerationYData((oldData) => {
-        let allData = [...oldData, res.datapoint];
-
-        return getRecentData(allData);
+    } else {
+      getData(
+        deviceEui,
+        AccelerationDirection.X,
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setAccelerationXHistory(res);
       });
-    });
-
-    socket.on(getEventName(deviceEui, AccelerationDirection.Z), (res) => {
-      setAccelerationZData((oldData) => {
-        let allData = [...oldData, res.datapoint];
-
-        return getRecentData(allData);
+      getData(
+        deviceEui,
+        AccelerationDirection.Y,
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setAccelerationYHistory(res);
       });
-    });
-  }, [deviceEui, minTimeQueryParam, maxTimeQueryParam]);
+      getData(
+        deviceEui,
+        AccelerationDirection.Z,
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setAccelerationZHistory(res);
+      });
+    }
+  }, [deviceEui, isLive, minTimeQueryParam, maxTimeQueryParam]);
 
   const getAccelerationData = () => {
-    switch (accelerationDir) {
-      case AccelerationDirection.X:
-        return accelerationXData;
+    if (isLive) {
+      switch (accelerationDir) {
+        case AccelerationDirection.X:
+          return accelerationXData;
 
-      case AccelerationDirection.Y:
-        return accelerationYData;
+        case AccelerationDirection.Y:
+          return accelerationYData;
 
-      case AccelerationDirection.Z:
-        return accelerationZData;
+        case AccelerationDirection.Z:
+          return accelerationZData;
 
-      case AccelerationDirection.All:
-        return accelerationData;
+        default:
+          return [];
+      }
+    } else {
+      switch (accelerationDir) {
+        case AccelerationDirection.X:
+          return accelerationXHistory;
 
-      default:
-        return [];
+        case AccelerationDirection.Y:
+          return accelerationYHistory;
+
+        case AccelerationDirection.Z:
+          return accelerationZHistory;
+
+        default:
+          return [];
+      }
     }
   };
 
@@ -288,23 +308,12 @@ export const AccelerationChart = ({
         />
         <YAxis height={50} />
         <Tooltip />
-        {accelerationDir === AccelerationDirection.All && <Legend />}
-        {accelerationDir !== AccelerationDirection.All && (
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#25386A"
-            activeDot={{ r: 8 }}
-          />
-        )}
         <Line
           type="monotone"
-          dataKey="AccelerationX"
+          dataKey="value"
           stroke="#25386A"
           activeDot={{ r: 8 }}
         />
-        <Line type="monotone" dataKey="AccelerationY" stroke="#70A8B7" />
-        <Line type="monotone" dataKey="AccelerationZ" stroke="#25386A" />
       </LineChart>
     </ResponsiveContainer>
   );

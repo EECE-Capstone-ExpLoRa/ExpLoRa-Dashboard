@@ -30,8 +30,14 @@ import { AircraftAxis, TimestreamSocketResponse } from "../../utils/types";
 import { getEventName, getRecentData } from "../../utils/utils";
 import { getSocket } from "../../services/socket.service";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
+import { getData } from "../../services/timestream.service";
 
-const AircraftMotionCard = ({ modalSize, eui }: TelemetryCardProps) => {
+const AircraftMotionCard = ({
+  modalSize,
+  eui,
+  isLive,
+  timeRange,
+}: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [axis, setAxis] = useState<string>(AircraftAxis.Yaw);
 
@@ -51,7 +57,12 @@ const AircraftMotionCard = ({ modalSize, eui }: TelemetryCardProps) => {
         shadow={"md"}
         borderTop={2}
       >
-        <AircraftMotionChart deviceEui={eui} axis={axis} />
+        <AircraftMotionChart
+          deviceEui={eui}
+          axis={axis}
+          isLive={isLive}
+          timeRange={timeRange}
+        />
       </Box>
     );
   };
@@ -133,7 +144,12 @@ const AircraftMotionCard = ({ modalSize, eui }: TelemetryCardProps) => {
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <AircraftMotionChart deviceEui={eui} axis={axis} />
+              <AircraftMotionChart
+                deviceEui={eui}
+                axis={axis}
+                isLive={isLive}
+                timeRange={timeRange}
+              />
             </Box>
             {renderAxisSelect("sm")}
           </ModalBody>
@@ -151,55 +167,108 @@ const AircraftMotionCard = ({ modalSize, eui }: TelemetryCardProps) => {
 export const AircraftMotionChart = ({
   axis,
   deviceEui,
+  isLive,
+  timeRange,
 }: {
   axis: string;
   deviceEui: string;
+  isLive?: boolean;
+  timeRange: Date[];
 }) => {
   const [yawData, setYawData] = useState<TimestreamSocketResponse>([]);
   const [pitchData, setPitchData] = useState<TimestreamSocketResponse>([]);
   const [rollData, setRollData] = useState<TimestreamSocketResponse>([]);
+  const [yawHistory, setYawHistory] = useState<TimestreamSocketResponse>([]);
+  const [pitchHistory, setPitchHistory] = useState<TimestreamSocketResponse>(
+    []
+  );
+  const [rollHistory, setRollHistory] = useState<TimestreamSocketResponse>([]);
+  const [minTimeQueryParam, maxTimeQueryParam] = timeRange;
 
   useEffect(() => {
-    const socket = getSocket();
+    if (isLive) {
+      const socket = getSocket();
 
-    socket.on(getEventName(deviceEui, AircraftAxis.Yaw), (res) => {
-      setYawData((oldData) => {
-        const allData = [...oldData, res.datapoint];
+      socket.on(getEventName(deviceEui, AircraftAxis.Yaw), (res) => {
+        setYawData((oldData) => {
+          const allData = [...oldData, res.datapoint];
 
-        return getRecentData(allData);
+          return getRecentData(allData);
+        });
       });
-    });
 
-    socket.on(getEventName(deviceEui, AircraftAxis.Pitch), (res) => {
-      setPitchData((oldData) => {
-        const allData = [...oldData, res.datapoint];
+      socket.on(getEventName(deviceEui, AircraftAxis.Pitch), (res) => {
+        setPitchData((oldData) => {
+          const allData = [...oldData, res.datapoint];
 
-        return getRecentData(allData);
+          return getRecentData(allData);
+        });
       });
-    });
 
-    socket.on(getEventName(deviceEui, AircraftAxis.Roll), (res) => {
-      setRollData((oldData) => {
-        const allData = [...oldData, res.datapoint];
+      socket.on(getEventName(deviceEui, AircraftAxis.Roll), (res) => {
+        setRollData((oldData) => {
+          const allData = [...oldData, res.datapoint];
 
-        return getRecentData(allData);
+          return getRecentData(allData);
+        });
       });
-    });
-  }, [deviceEui]);
+    } else {
+      getData(
+        deviceEui,
+        AircraftAxis.Yaw,
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setYawHistory(res);
+      });
+      getData(
+        deviceEui,
+        AircraftAxis.Pitch,
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setPitchHistory(res);
+      });
+      getData(
+        deviceEui,
+        AircraftAxis.Roll,
+        minTimeQueryParam.getTime(),
+        maxTimeQueryParam.getTime()
+      ).then((res) => {
+        setRollHistory(res);
+      });
+    }
+  }, [deviceEui, isLive]);
 
   const getYawPitchRollData = () => {
-    switch (axis) {
-      case AircraftAxis.Yaw:
-        return yawData;
+    if (isLive) {
+      switch (axis) {
+        case AircraftAxis.Yaw:
+          return yawData;
 
-      case AircraftAxis.Pitch:
-        return pitchData;
+        case AircraftAxis.Pitch:
+          return pitchData;
 
-      case AircraftAxis.Roll:
-        return rollData;
+        case AircraftAxis.Roll:
+          return rollData;
 
-      default:
-        return [];
+        default:
+          return [];
+      }
+    } else {
+      switch (axis) {
+        case AircraftAxis.Yaw:
+          return yawHistory;
+
+        case AircraftAxis.Pitch:
+          return pitchHistory;
+
+        case AircraftAxis.Roll:
+          return rollHistory;
+
+        default:
+          return [];
+      }
     }
   };
 

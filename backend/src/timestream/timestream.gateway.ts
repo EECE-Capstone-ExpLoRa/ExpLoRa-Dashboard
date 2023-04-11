@@ -53,7 +53,6 @@ export class TimestreamGateway implements OnModuleInit {
   async handleRegisterDevice(@MessageBody() message: { deviceEui: string }) {
     const { deviceEui } = message;
 
-    console.log(deviceEui);
     this.setCurrentDevice(deviceEui);
   }
 
