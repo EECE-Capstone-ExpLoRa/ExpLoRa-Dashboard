@@ -58,7 +58,6 @@ export class AppController {
   })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async login(@Req() req) {
-    //! Do we want to add a reroute here if it fails?
     const token = await this.authService.login(req.user);
     return token;
   }

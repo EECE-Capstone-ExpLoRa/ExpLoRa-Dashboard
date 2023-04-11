@@ -15,7 +15,7 @@ import { useMutation } from '@tanstack/react-query';
 
 const Register = () => {
   const toast = useToast();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const mailFormat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
   const registerUserMutation = useMutation({
@@ -59,7 +59,7 @@ const Register = () => {
       action.resetForm();
     }}>
       {formik => (
-      <Flex bg='test2.100' align='center' justify='center' h='100vh'>
+      <Flex bg='gray.100' align='center' justify='center' h='100vh'>
         <Box bg='white' p={10} rounded='md' w='25%'>
           <form onSubmit={formik.handleSubmit}>
             <VStack spacing={4} align='flex-start'>
@@ -68,7 +68,7 @@ const Register = () => {
               <FormInputField label='Password' required={true} id='password' name='password' type='password'/>
               <FormInputField label='Confirm Password' required={true} id='confirmPassword' name='confirmPassword' type='password'/>
               <FormInputField label='Device Eui' required={false} id='deviceEui' name='deviceEui' type='text'/>
-              <Button type="submit" colorScheme='test2' color='black' width="full">Sign Up</Button> 
+              <Button type="submit" colorScheme='brand' width="full">Sign Up</Button> 
               <Link to="/signin">Already have an account?</Link>
             </VStack>
           </form>

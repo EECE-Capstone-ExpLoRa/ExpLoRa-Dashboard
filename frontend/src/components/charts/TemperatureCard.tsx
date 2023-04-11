@@ -29,8 +29,12 @@ import {
 import { getSocket } from "../../services/socket.service";
 import { TimestreamSocketResponse } from "../../utils/types";
 import { getEventName, getRecentData } from "../../utils/utils";
+import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const TemperatureCard = ({ modalSize = "full" }): ReactElement => {
+const TemperatureCard = ({
+  modalSize,
+  eui,
+}: TelemetryCardProps): ReactElement => {
   const [open, setOpen] = useState(true);
   const {
     isOpen: isModalOpen,
@@ -48,7 +52,7 @@ const TemperatureCard = ({ modalSize = "full" }): ReactElement => {
         shadow={"md"}
         borderTop={2}
       >
-        <TemperatureChart />
+        <TemperatureChart deviceEui={eui} />
       </Box>
     );
   };
@@ -113,11 +117,11 @@ const TemperatureCard = ({ modalSize = "full" }): ReactElement => {
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <TemperatureChart />
+              <TemperatureChart deviceEui={eui} />
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
+            <Button colorScheme="brand" mr={3} onClick={onModalClose}>
               Close
             </Button>
           </ModalFooter>
@@ -127,20 +131,24 @@ const TemperatureCard = ({ modalSize = "full" }): ReactElement => {
   );
 };
 
-const TemperatureChart = (): ReactElement => {
+const TemperatureChart = ({
+  deviceEui,
+}: {
+  deviceEui: string;
+}): ReactElement => {
   const [temperatureData, setTemperatureData] =
     useState<TimestreamSocketResponse>([]);
 
   useEffect(() => {
     const socket = getSocket();
-    socket.on(getEventName("temperature"), (res) => {
+    socket.on(getEventName(deviceEui, "temperature"), (res) => {
       setTemperatureData((oldData) => {
         let allData = [...oldData, res.datapoint];
 
         return getRecentData(allData);
       });
     });
-  }, []);
+  }, [deviceEui]);
 
   return (
     <ResponsiveContainer height={"100%"}>

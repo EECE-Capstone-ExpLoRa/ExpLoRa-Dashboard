@@ -69,9 +69,13 @@ export class UserController {
   @ApiUnauthorizedResponse({description: "You aren't logged into your account"})
   @UsePipes(new ValidationPipe({whitelist: true, forbidNonWhitelisted: true}))
   public async registerDevice(@Req() req, @Body() registerDeviceDto: RegisterDeviceDto) {
-    const user: UserDto = req.user;
-    await this.userService.registerDevice(user.userId, registerDeviceDto.device_eui);
-    return registerDeviceDto;
+    try {
+      const user: UserDto = req.user;
+      await this.userService.registerDevice(user.userId, registerDeviceDto.device_eui);
+      return registerDeviceDto;
+    } catch (error) {
+      throw new BadRequestException('Device already registered with you');
+    }
   }
 
   @Post()

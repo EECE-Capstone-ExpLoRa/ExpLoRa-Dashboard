@@ -16,7 +16,7 @@ const LogIn = () => {
   //logs the user in using the credentials, if successfully signed in, add the user's auth token to header and takes them to logged in landing page, else resets form and says invalid login
   const loginUserMutation = useMutation({
     mutationFn: login,
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       toast({
         title: 'Logged In',
         status: 'success',
@@ -44,7 +44,7 @@ const LogIn = () => {
       username: Yup.string().required('Username is required').min(6, 'Username must be at least 6 characters long'),
       password: Yup.string().required('Password is required').min(8, 'Password must be at least 8 characters long')
     })}
-    onSubmit={async (values, action) => {
+    onSubmit={(values, action) => {
       const user: loginUserObject = {
         username: values.username,
         password: values.password,
@@ -54,13 +54,13 @@ const LogIn = () => {
     }}
     >
       {formik => (
-            <Flex bg='test2.100' align='center' justify='center' h='100vh'>
+            <Flex bg='gray.100' align='center' justify='center' h='100vh'>
             <Box bg='white' p={10} rounded='md' w='25%'>
              <form onSubmit={formik.handleSubmit}>
                <VStack spacing={4} align='flex-start'>
                  <FormInputField label='Username' required={true} id='username' name='username' type='text' variant='filled'/>
                  <FormInputField label='Password' required={true} id='password' name='password' type='password' variant='filled'/>
-                 <Button type="submit" colorScheme="test2" width="full" color='white'>Log In</Button>
+                 <Button type="submit" colorScheme="brand" width="full">Log In</Button>
                  <Link to="/register">Don't have an account yet?</Link>
                </VStack>
              </form>

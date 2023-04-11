@@ -12,11 +12,9 @@ import {
   ModalHeader,
   ModalOverlay,
   Popover,
-  PopoverArrow,
   PopoverBody,
   PopoverCloseButton,
   PopoverContent,
-  PopoverHeader,
   PopoverTrigger,
   Select,
   Text,
@@ -44,8 +42,9 @@ import {
 } from "../../utils/types";
 import { getSocket } from "../../services/socket.service";
 import { getEventName, getRecentData } from "../../utils/utils";
+import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const AccelerationCard = ({ modalSize = "full" }: any) => {
+const AccelerationCard = ({ modalSize, eui }: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [accelerationDir, setAccelerationDir] = useState<string>(
     AccelerationDirection.X
@@ -72,6 +71,7 @@ const AccelerationCard = ({ modalSize = "full" }: any) => {
         borderTop={2}
       >
         <AccelerationChart
+          deviceEui={eui}
           accelerationDir={accelerationDir}
           timeRange={value}
         />
@@ -181,6 +181,7 @@ const AccelerationCard = ({ modalSize = "full" }: any) => {
           <ModalBody>
             <Box height="600px">
               <AccelerationChart
+                deviceEui={eui}
                 accelerationDir={accelerationDir}
                 timeRange={value}
               />
@@ -188,7 +189,7 @@ const AccelerationCard = ({ modalSize = "full" }: any) => {
             {renderDirectionSelect("sm")}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
+            <Button colorScheme="brand" mr={3} onClick={onModalClose}>
               Close
             </Button>
           </ModalFooter>
@@ -201,9 +202,11 @@ const AccelerationCard = ({ modalSize = "full" }: any) => {
 export const AccelerationChart = ({
   accelerationDir,
   timeRange,
+  deviceEui,
 }: {
   accelerationDir: string;
   timeRange: Date[];
+  deviceEui: string;
 }) => {
   const [accelerationXData, setAccelerationXData] =
     useState<TimestreamSocketResponse>([]);
@@ -218,17 +221,16 @@ export const AccelerationChart = ({
   useEffect(() => {
     const socket = getSocket();
 
-    //TODO: figure out accelerations endpoint
-
-    socket.on(getEventName(AccelerationDirection.X), (res: any) => {
+    socket.on(getEventName(deviceEui, AccelerationDirection.X), (res: any) => {
       setAccelerationXData((oldData) => {
+        console.log(res.datapoint);
         let allData = [...oldData, res.datapoint];
 
         return getRecentData(allData);
       });
     });
 
-    socket.on(getEventName(AccelerationDirection.Y), (res: any) => {
+    socket.on(getEventName(deviceEui, AccelerationDirection.Y), (res: any) => {
       setAccelerationYData((oldData) => {
         let allData = [...oldData, res.datapoint];
 
@@ -236,14 +238,14 @@ export const AccelerationChart = ({
       });
     });
 
-    socket.on(getEventName(AccelerationDirection.Z), (res) => {
+    socket.on(getEventName(deviceEui, AccelerationDirection.Z), (res) => {
       setAccelerationZData((oldData) => {
         let allData = [...oldData, res.datapoint];
 
         return getRecentData(allData);
       });
     });
-  }, [minTimeQueryParam, maxTimeQueryParam]);
+  }, [deviceEui, minTimeQueryParam, maxTimeQueryParam]);
 
   const getAccelerationData = () => {
     switch (accelerationDir) {

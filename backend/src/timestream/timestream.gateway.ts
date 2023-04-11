@@ -6,7 +6,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { TimestreamService } from './../timestream/timestream.service';
 let tick = 0;
 
 type TimedPayload = {
@@ -35,7 +34,13 @@ type TimedPayload = {
 
 @WebSocketGateway({ namespace: '/socket/timestream' })
 export class TimestreamGateway implements OnModuleInit {
-  constructor(private readonly timestreamService: TimestreamService) {}
+  constructor() {}
+
+  currentDevice: string;
+
+  setCurrentDevice(deviceEui: string) {
+    this.currentDevice = deviceEui;
+  }
 
   @WebSocketServer()
   server: Server;
@@ -44,13 +49,23 @@ export class TimestreamGateway implements OnModuleInit {
     this.server.on('connection', (_socket) => {});
   }
 
+  @SubscribeMessage('register_device')
+  async handleRegisterDevice(@MessageBody() message: { deviceEui: string }) {
+    const { deviceEui } = message;
+
+    console.log(deviceEui);
+    this.setCurrentDevice(deviceEui);
+  }
+
   @SubscribeMessage('data_forwarded')
   async handleDataStream(
     @MessageBody() message: { deviceEui: string; data: TimedPayload },
   ) {
     const { deviceEui, data } = message;
 
-    this.emitDatapoints(deviceEui, data);
+    if (deviceEui === this.currentDevice) {
+      this.emitDatapoints(deviceEui, data);
+    }
   }
 
   emitDatapoints(deviceEui: string, data: TimedPayload) {
