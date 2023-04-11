@@ -6,7 +6,7 @@ import { GeoData } from "../../utils/types";
 import { getEventName } from "../../utils/utils";
 import { DashboardProp } from "../../utils/dashboardProps";
 
-const Map = ({eui}: DashboardProp) => {
+const Map = ({ eui }: DashboardProp) => {
   const [lat, setLat] = useState(0);
   const [lng, setLng] = useState(0);
 
@@ -18,16 +18,14 @@ const Map = ({eui}: DashboardProp) => {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on(getEventName(GeoData.Latitude), (res) => {
-      console.log(res.datapoint.value);
+    socket.on(getEventName(eui, GeoData.Latitude), (res) => {
       setLat(res.datapoint.value);
     });
 
-    socket.on(getEventName(GeoData.Longitude), (res) => {
-      console.log(res.datapoint.value);
+    socket.on(getEventName(eui, GeoData.Longitude), (res) => {
       setLng(res.datapoint.value);
     });
-  }, []);
+  }, [eui]);
 
   return (
     <ExpandableCard title="Location" modalSize="full">

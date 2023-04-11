@@ -21,7 +21,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   AreaChart,
   Area,
@@ -31,7 +30,7 @@ import { TimestreamSocketResponse } from "../../utils/types";
 import { getEventName, getRecentData } from "../../utils/utils";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const PressureCard = ({modalSize, eui}: TelemetryCardProps): ReactElement => {
+const PressureCard = ({ modalSize, eui }: TelemetryCardProps): ReactElement => {
   const [open, setOpen] = useState(true);
   const {
     isOpen: isModalOpen,
@@ -49,7 +48,7 @@ const PressureCard = ({modalSize, eui}: TelemetryCardProps): ReactElement => {
         shadow={"md"}
         borderTop={2}
       >
-        <PressureChart />
+        <PressureChart deviceEui={eui} />
       </Box>
     );
   };
@@ -114,11 +113,11 @@ const PressureCard = ({modalSize, eui}: TelemetryCardProps): ReactElement => {
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <PressureChart />
+              <PressureChart deviceEui={eui} />
             </Box>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
+            <Button colorScheme="brand" mr={3} onClick={onModalClose}>
               Close
             </Button>
           </ModalFooter>
@@ -128,7 +127,7 @@ const PressureCard = ({modalSize, eui}: TelemetryCardProps): ReactElement => {
   );
 };
 
-const PressureChart = (): ReactElement => {
+const PressureChart = ({ deviceEui }: { deviceEui: string }): ReactElement => {
   const [pressureData, setPressureData] = useState<TimestreamSocketResponse>(
     []
   );
@@ -136,14 +135,14 @@ const PressureChart = (): ReactElement => {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on(getEventName("pressure"), (res) => {
+    socket.on(getEventName(deviceEui, "pressure"), (res) => {
       setPressureData((oldData) => {
         let allData = [...oldData, res.datapoint];
 
         return getRecentData(allData);
       });
     });
-  }, []);
+  }, [deviceEui]);
 
   return (
     <ResponsiveContainer height={"100%"}>

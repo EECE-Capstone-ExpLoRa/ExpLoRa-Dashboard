@@ -31,7 +31,7 @@ import { getEventName, getRecentData } from "../../utils/utils";
 import { getSocket } from "../../services/socket.service";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const AircraftMotionCard = ({modalSize, eui}: TelemetryCardProps) => {
+const AircraftMotionCard = ({ modalSize, eui }: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [axis, setAxis] = useState<string>(AircraftAxis.Yaw);
 
@@ -45,13 +45,13 @@ const AircraftMotionCard = ({modalSize, eui}: TelemetryCardProps) => {
     return (
       <Box
         width="full"
-        height="250px"
+        height="245px"
         padding={4}
         backgroundColor="white"
         shadow={"md"}
         borderTop={2}
       >
-        <AircraftMotionChart axis={axis} />
+        <AircraftMotionChart deviceEui={eui} axis={axis} />
       </Box>
     );
   };
@@ -133,12 +133,12 @@ const AircraftMotionCard = ({modalSize, eui}: TelemetryCardProps) => {
           <ModalCloseButton />
           <ModalBody>
             <Box height="600px">
-              <AircraftMotionChart axis={axis} />
+              <AircraftMotionChart deviceEui={eui} axis={axis} />
             </Box>
             {renderAxisSelect("sm")}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
+            <Button colorScheme="brand" mr={3} onClick={onModalClose}>
               Close
             </Button>
           </ModalFooter>
@@ -148,7 +148,13 @@ const AircraftMotionCard = ({modalSize, eui}: TelemetryCardProps) => {
   );
 };
 
-export const AircraftMotionChart = ({ axis }: { axis: string }) => {
+export const AircraftMotionChart = ({
+  axis,
+  deviceEui,
+}: {
+  axis: string;
+  deviceEui: string;
+}) => {
   const [yawData, setYawData] = useState<TimestreamSocketResponse>([]);
   const [pitchData, setPitchData] = useState<TimestreamSocketResponse>([]);
   const [rollData, setRollData] = useState<TimestreamSocketResponse>([]);
@@ -156,7 +162,7 @@ export const AircraftMotionChart = ({ axis }: { axis: string }) => {
   useEffect(() => {
     const socket = getSocket();
 
-    socket.on(getEventName(AircraftAxis.Yaw), (res) => {
+    socket.on(getEventName(deviceEui, AircraftAxis.Yaw), (res) => {
       setYawData((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -164,7 +170,7 @@ export const AircraftMotionChart = ({ axis }: { axis: string }) => {
       });
     });
 
-    socket.on(getEventName(AircraftAxis.Pitch), (res) => {
+    socket.on(getEventName(deviceEui, AircraftAxis.Pitch), (res) => {
       setPitchData((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -172,14 +178,14 @@ export const AircraftMotionChart = ({ axis }: { axis: string }) => {
       });
     });
 
-    socket.on(getEventName(AircraftAxis.Roll), (res) => {
+    socket.on(getEventName(deviceEui, AircraftAxis.Roll), (res) => {
       setRollData((oldData) => {
         const allData = [...oldData, res.datapoint];
 
         return getRecentData(allData);
       });
     });
-  }, []);
+  }, [deviceEui]);
 
   const getYawPitchRollData = () => {
     switch (axis) {

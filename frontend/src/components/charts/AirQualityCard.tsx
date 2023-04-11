@@ -32,7 +32,7 @@ import { getSocket } from "../../services/socket.service";
 import { getEventName, getRecentData } from "../../utils/utils";
 import { TelemetryCardProps } from "../../utils/dashboardProps";
 
-const AirQualityCard = ({modalSize, eui}: TelemetryCardProps) => {
+const AirQualityCard = ({ modalSize, eui }: TelemetryCardProps) => {
   const [open, setOpen] = useState(true);
   const [airQualityType, setAirQualityType] = useState<string>(
     AirQuality.PM_1P0
@@ -53,7 +53,7 @@ const AirQualityCard = ({modalSize, eui}: TelemetryCardProps) => {
         shadow={"md"}
         borderTop={2}
       >
-        <AirQualityChart airQualityType={airQualityType} />
+        <AirQualityChart deviceEui={eui} airQualityType={airQualityType} />
       </Box>
     );
   };
@@ -73,7 +73,6 @@ const AirQualityCard = ({modalSize, eui}: TelemetryCardProps) => {
         <option value={AirQuality.Temperature}>Ambient Temperature</option>
         <option value={AirQuality.VOC}>VOC Index</option>
         <option value={eui}>{eui}</option>
-
       </Select>
     );
   };
@@ -135,12 +134,15 @@ const AirQualityCard = ({modalSize, eui}: TelemetryCardProps) => {
           <ModalCloseButton />
           <ModalBody>
             <Box height="500px">
-              <AirQualityChart airQualityType={airQualityType} />
+              <AirQualityChart
+                deviceEui={eui}
+                airQualityType={airQualityType}
+              />
             </Box>
             {renderDirectionSelect("sm")}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onModalClose}>
+            <Button colorScheme="brand" mr={3} onClick={onModalClose}>
               Close
             </Button>
           </ModalFooter>
@@ -152,8 +154,10 @@ const AirQualityCard = ({modalSize, eui}: TelemetryCardProps) => {
 
 const AirQualityChart = ({
   airQualityType,
+  deviceEui,
 }: {
   airQualityType: string;
+  deviceEui: string;
 }): ReactElement => {
   const [pm1p0Data, setPm1p0Data] = useState<TimestreamSocketResponse>([]);
   const [pm2p5Data, setPm2p5Data] = useState<TimestreamSocketResponse>([]);
@@ -168,7 +172,7 @@ const AirQualityChart = ({
 
   useEffect(() => {
     const socket = getSocket();
-    socket.on(getEventName(AirQuality.PM_1P0), (res) => {
+    socket.on(getEventName(deviceEui, AirQuality.PM_1P0), (res) => {
       setPm1p0Data((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -176,7 +180,7 @@ const AirQualityChart = ({
       });
     });
 
-    socket.on(getEventName(AirQuality.PM_2P5), (res) => {
+    socket.on(getEventName(deviceEui, AirQuality.PM_2P5), (res) => {
       setPm2p5Data((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -184,7 +188,7 @@ const AirQualityChart = ({
       });
     });
 
-    socket.on(getEventName(AirQuality.PM_4P0), (res) => {
+    socket.on(getEventName(deviceEui, AirQuality.PM_4P0), (res) => {
       setPm4p0Data((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -192,7 +196,7 @@ const AirQualityChart = ({
       });
     });
 
-    socket.on(getEventName(AirQuality.PM_10P0), (res) => {
+    socket.on(getEventName(deviceEui, AirQuality.PM_10P0), (res) => {
       setPm10p0Data((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -200,7 +204,7 @@ const AirQualityChart = ({
       });
     });
 
-    socket.on(getEventName(AirQuality.Humidity), (res) => {
+    socket.on(getEventName(deviceEui, AirQuality.Humidity), (res) => {
       setHumidityData((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -208,7 +212,7 @@ const AirQualityChart = ({
       });
     });
 
-    socket.on(getEventName(AirQuality.Temperature), (res) => {
+    socket.on(getEventName(deviceEui, AirQuality.Temperature), (res) => {
       setTemperatureData((oldData) => {
         const allData = [...oldData, res.datapoint];
 
@@ -216,7 +220,7 @@ const AirQualityChart = ({
       });
     });
 
-    socket.on(getEventName(AirQuality.VOC), (res) => {
+    socket.on(getEventName(deviceEui, AirQuality.VOC), (res) => {
       setVocData((oldData) => {
         const allData = [...oldData, res.datapoint];
 
