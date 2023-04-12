@@ -27,7 +27,6 @@ const DashboardContainer = () => {
         onToggleLive={toggleLiveDashboard}
         isLive={isLive}
         onDatePickerChange={onChange}
-        datePickerValue={value}
       />
     </>
   );

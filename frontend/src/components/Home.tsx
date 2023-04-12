@@ -29,7 +29,7 @@ const Home = () => {
       backgroundColor="gray.100"
       h="100vh"
       textColor="brand.500"
-    >
+    > 
       <Flex margin='14px 0px' padding='0px 8px'>
         <Image src="/Explora-Name.svg" height='48' />
       </Flex>

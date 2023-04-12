@@ -35,7 +35,6 @@ import {
   VStack,
 } from "@chakra-ui/react";
 // @ts-ignore
-import DateTimeRangePicker from "@wojtekmaj/react-datetimerange-picker";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryClient } from "../..";
@@ -45,6 +44,7 @@ import {
   registerNewDevice,
   updateUserDevices,
 } from "../../services/user.service";
+import DateRangePicker from "./DateRangePicker";
 
 type updateDeviceType = {
   nickname?: string;
@@ -56,7 +56,6 @@ const DashboardFooter = ({
   onToggleLive,
   isLive,
   onDatePickerChange,
-  datePickerValue,
 }: any) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [deviceEui, setDeviceEui] = useState("");
@@ -386,16 +385,24 @@ const DashboardFooter = ({
             <PopoverTrigger>
               <TimeIcon />
             </PopoverTrigger>
-            <PopoverContent width="425px">
+            <PopoverContent width='fit-content'>
               <PopoverCloseButton />
-              <PopoverBody>
-                <DateTimeRangePicker
+              <PopoverBody >
+                <DateRangePicker onDatePickerChange={onDatePickerChange}/>
+                {/* <DateTimeRangePicker
                   onChange={onDatePickerChange}
                   value={datePickerValue}
                   closeWidgets={false}
                   clearIcon={null}
                   calendarIcon={null}
-                />
+                /> */}
+                {/* <DatePicker
+                selected={new Date()}
+                onChange={() => console.log("hoe")}
+                showTimeSelect
+                dateFormat="MMMM d, yyyy h:mm aa"
+                /> */}
+
               </PopoverBody>
             </PopoverContent>
           </Popover>
